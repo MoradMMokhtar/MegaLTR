@@ -1,0 +1,20 @@
+>Pycnococcus_provasolii_BNJQ01000001.1.trna1-Trp [CCA] (745018-745153) 136 (Trp)	(745018-745153) pb	Sc: 60.0
+GGCTCTGTGGCTCAATGGTAGAGCAATTGATTCCAGaaatttcctgaaaacaactccctgcgaaatgaaaatttcgcggaaaaattttcgagtgcgacaaCTCAATAGGtTGTGGGTTCGATTCCTGCCAGGGTCT
+>Pycnococcus_provasolii_BNJQ01000001.1.trna2-Trp [CCA] (746315-746180) 136 (Trp)	(746315-746180) pb	Sc: 60.0
+GGCTCTGTGGCTCAATGGTAGAGCAATTGATTCCAGaaatttcctgaaaacaactccctgcgaaatgaaaatttcgcggaaaaattttcgagtgcgacaaCTCAATAGGtTGTGGGTTCGATTCCTGCCAGGGTCT
+>Pycnococcus_provasolii_BNJQ01000006.1.trna1-SeC [TCA] (137297-137383) 87 (SeC)	(137297-137383) pb	Sc: 103.9
+GCTAGAATGAGCTTGGGGGGTCCTGAGTGCAGACTTCAAATCTGTAGAGGGGGAGACTCCTAGCTGTTCGACTCAGCCTTTCTAGCG
+>Pycnococcus_provasolii_BNJQ01000022.1.trna1-Undet [NNN] (178493-178667) 175 (Undet)	(178493-178667) pb	Sc: 27.8
+GTCTCTATGGTATAGTGGCAGCATACATCgTAAgttttcaagaagacattgctccttgtcgatgagaacaaaccagctctaaccgaatccaaccacaacagtttgccaacattccgcgaagaattattcaaccctcaatgAgGATGAGaCGGCGGTTCGATTCCGCCTGGAGACA
+>Pycnococcus_provasolii_BNJQ01000022.1.trna2-Met [CAT] (286016-286188) 173 (Met)	(286016-286188) pb	Sc: 72.5
+ACCGGGTTAGCGCAGCGGTtAGCGCGTGAGGCTCATAcgaacggggcggggtccgagtaggctgcatgcacctcctcgaggaggcaccagtcagtgcaccctccatcctcccacctccttgttaatgggttagggttACCTCAAGGtCCCAGGTTCGAATCCTGGACCCGGTT
+>Pycnococcus_provasolii_BNJQ01000022.1.trna3-Met [CAT] (307895-308074) 180 (Met)	(307895-308074) pb	Sc: 72.2
+ACCGGGTTAGCGCAGCGGTtAGCGCGTGAGGCTCATAcgaaacggggcgggggggagtaggctgcatcttgcatgccctcctcgaggaggcaccagtcagtgcaccctccatcctcccacctccttgcttaatgggttagggttACCTCAAGGtCCCAGGTTCGAATCCTGGACCCGGTT
+>Pycnococcus_provasolii_BNJQ01000022.1.trna4-Undet [NNN] (181666-181492) 175 (Undet)	(181666-181492) pb	Sc: 27.8
+GTCTCTATGGTATAGTGGCAGCATACATCgTAAgttttcaagaagacattgctccttgtcgatgagaacaaaccagctctaaccgaatccaaccacaacagtttgccaacattccgcgaagaattattcaaccctcaatgAgGATGAGaCGGCGGTTCGATTCCGCCTGGAGACA
+>Pycnococcus_provasolii_BNJQ01000027.1.trna1-Tyr [GTA] (56127-55995) 133 (Tyr)	(56127-55995) pb	Sc: 69.2
+CTCTGGATAGCTCAGTTGGTAGAGCATTCGACTGTAAtctgagtgcaattttgcgctcgaataaagcttcgggtttcgacccgtaagtcgatcataaATCGAATTGtCCCCAGTTCGATTCTGGGTCTGGAGA
+>Pycnococcus_provasolii_BNJQ01000035.1.trna1-Ser [CGA] (30080-30278) 199 (Ser)	(30080-30278) pb	Sc: 39.3
+GACACTTTGGCCGAGCGGTtAAGGCGGTGCACTCGAAtcaatgagtcgtatcaatgacatttttttttcctgcctgattctactttttgcgcatctgaagccacttctcatgaaaaatgcagggacactttcagattcgggttttaaccttcgatATCGATTGGGGGAACCCGCGCGAGTTCGAATCTCGTCGGTGTCG
+>Pycnococcus_provasolii_BNJQ01000035.1.trna2-Ser [CGA] (36136-35938) 199 (Ser)	(36136-35938) pb	Sc: 39.3
+GACACTTTGGCCGAGCGGTtAAGGCGGTGCACTCGAAtcaatgagtcgtatcaatgacatttttttttcctgcctgattctactttttgcgcatctgaagccacttctcatgaaaaatgcagggacactttcagattcgggttttaaccttcgatATCGATTGGGGGAACCCGCGCGAGTTCGAATCTCGTCGGTGTCG
