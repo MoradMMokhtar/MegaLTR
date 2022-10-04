@@ -123,15 +123,25 @@ We have collected the main output files in the Collected _Files folder in the ma
 | 26 | *.length.ids.TimeK_chart.png | statistical distribution of LTR-RT insertion age for each LTR-RTs superfamily (Copia and Gypsy) |
  #
  ## Output files example (images)
-
- - Genes and LTR-RTs density across chromosomes
- - Boxplot of LTR-RTs length for both LTR-RTs superfamilies
- - Statistical distribution of LTR-RTs length for both LTR-RTs superfamilies
- - Boxplot of LTR-RTs insertion age for both LTR-RTs superfamilies
- - Statistical distribution of LTR-RTs insertion age for both LTR-RTs superfamilies
- -  Boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)
- - Statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)
- - Boxplot of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)
- - Statistical distribution of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)
-
  
+ - Genes and LTR-RTs density across chromosomes
+
+![Genes and LTR-RTs density across chromosomes](https://bioinformatics.um6p.ma/MegaLTR/images/chromosomes.png)
+ - Boxplot of LTR-RTs length for both LTR-RTs superfamilies
+
+![Boxplot of LTR-RTs length for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_boxplot.png)
+ - Statistical distribution of LTR-RTs length for both LTR-RTs superfamilies
+  ![Statistical distribution of LTR-RTs length for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_chart.png)
+ - Boxplot of LTR-RTs insertion age for both LTR-RTs superfamilies
+  ![Boxplot of LTR-RTs insertion age for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.TimeK_boxplot.png)
+ - Statistical distribution of LTR-RTs insertion age for both LTR-RTs superfamilies
+  ![Statistical distribution of LTR-RTs insertion age for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.Length_boxplot.png)
+ -  Boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)
+  ![Boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_boxplot.png)
+ - Statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)
+![Statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.Length_chart.png)
+ - Boxplot of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)
+![Boxplot of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_boxplot.png)
+ - Statistical distribution of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)
+![Statistical distribution of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_chart.png)
+
