@@ -4,11 +4,13 @@ In this study, we introduce MegaLTR, a robust online server that identifies inta
 
 MegaLTR is a pipeline to detect intact LTR-RTs at the whole genome level. It has three running ways:
 
-way 1 Intact LTR-RT identification and annotation of internal domains.
-
-way 2 Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time.
-
-way 3 Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes.
+> 1: Intact LTR-RT identification and annotation of internal domains.
+> 
+> 2: Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time.
+> 
+> 3: Intact LTR-RT Identification, annotation of internal domains,
+> determination of insertion time, LTR-RT gene-chimera analysis and
+> visualization of gene density and LTR-RTs across chromosomes.
 
 This pipeline integrates the structure-based, homology-based and de novo intact LTR-RT identification, classification, annotation and visualization tools such as [LTR_FINEDR](https://github.com/xzhub/LTR_Finder), [LTRharvest](http://genometools.org/pub/binary_distributions/), [LTR_retriever](https://github.com/oushujun/LTR_retriever), [RepeatMasker](http://www.repeatmasker.org/), [CDHIT package](http://weizhongli-lab.org/cd-hit/), [BLAST+ package](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/), [HMMER package](http://hmmer.org/),  [LTRdigest](https://www.zbh.uni-hamburg.de/en/forschung/gi/software/ltrdigest.html), [TEsorter](https://github.com/zhangrengang/TEsorter), l [REANNOTATE](http://www.bioinformatics.org/reannotate/about.html), [ClustalW](https://anaconda.org/bioconda/clustalw), [faidx](https://anaconda.org/bioconda/pyfaidx), [Rscript](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/Rscript), and [RIdeogram](https://cran.r-project.org/web/packages/RIdeogram/vignettes/RIdeogram.html). 
 
