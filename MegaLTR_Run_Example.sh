@@ -372,7 +372,8 @@ conda activate MegaLTR
 
       if [ $Analysistype -eq 3 ] ### mode 3      # #####  TE-gene chimeras #########
          then
-conda activate MegaLTR
+	 conda activate MegaLTR
+	 gffpath=$userpath/$process_id.gff
             now17="$(date)"
             echo
             printf "\t$now17 \tLTR-RT-gene chimeras started %s\n"
