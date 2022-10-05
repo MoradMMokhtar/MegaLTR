@@ -458,6 +458,7 @@ conda activate MegaLTR
   # #}
       rm $userpath/$process_id.fna
       rm $FASTA/*.fna
+      rm $userpath/$process_id.gff
       now21="$(date)"
       echo
       printf "\t$now21 \tMegaLTR Done, The results saved in ($Collected_Files) %s\n"
