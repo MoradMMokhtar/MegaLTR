@@ -1,20 +1,20 @@
 ﻿# # MegaLTR
 
-In this study, we introduce MegaLTR, a robust online server that identifies intact LTR -RTs in any target genome, and its local standalone version. MegaLTR is freely available at [https://bioinformatics.um6p.ma/MegaLTR](https://bioinformatics.um6p.ma/MegaLTR)
+MegaLTR is a robust online server that identifies intact LTR-RTs in any target genome, and its local standalone version. MegaLTR is freely available at [https://bioinformatics.um6p.ma/MegaLTR](https://bioinformatics.um6p.ma/MegaLTR)
 
-MegaLTR is a pipeline to detect intact LTR-RTs at the whole genome level. It has three running ways:
+
+MegaLTR is a pipeline that detects intact LTR-RTs at the whole genome level. The pipeline integrates the structure-based, homology-based and de novo intact LTR-RT identification, classification, annotation and visualization tools such as [LTR_FINEDR](https://github.com/xzhub/LTR_Finder), [LTRharvest](http://genometools.org/pub/binary_distributions/), [LTR_retriever](https://github.com/oushujun/LTR_retriever), [RepeatMasker](http://www.repeatmasker.org/), [CDHIT package](http://weizhongli-lab.org/cd-hit/), [BLAST+ package](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/), [HMMER package](http://hmmer.org/),  [LTRdigest](https://www.zbh.uni-hamburg.de/en/forschung/gi/software/ltrdigest.html), [TEsorter](https://github.com/zhangrengang/TEsorter), l [REANNOTATE](http://www.bioinformatics.org/reannotate/about.html), [ClustalW](https://anaconda.org/bioconda/clustalw), [faidx](https://anaconda.org/bioconda/pyfaidx), [Rscript](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/Rscript), and [RIdeogram](https://cran.r-project.org/web/packages/RIdeogram/vignettes/RIdeogram.html).
+
+
+MegaLTR running with three options:
 
 > 1: Intact LTR-RT identification and annotation of internal domains.
 > 
 > 2: Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time.
 > 
-> 3: Intact LTR-RT Identification, annotation of internal domains,
-> determination of insertion time, LTR-RT gene-chimera analysis and
-> visualization of gene density and LTR-RTs across chromosomes.
+> 3: Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes.
 
-This pipeline integrates the structure-based, homology-based and de novo intact LTR-RT identification, classification, annotation and visualization tools such as [LTR_FINEDR](https://github.com/xzhub/LTR_Finder), [LTRharvest](http://genometools.org/pub/binary_distributions/), [LTR_retriever](https://github.com/oushujun/LTR_retriever), [RepeatMasker](http://www.repeatmasker.org/), [CDHIT package](http://weizhongli-lab.org/cd-hit/), [BLAST+ package](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/), [HMMER package](http://hmmer.org/),  [LTRdigest](https://www.zbh.uni-hamburg.de/en/forschung/gi/software/ltrdigest.html), [TEsorter](https://github.com/zhangrengang/TEsorter), l [REANNOTATE](http://www.bioinformatics.org/reannotate/about.html), [ClustalW](https://anaconda.org/bioconda/clustalw), [faidx](https://anaconda.org/bioconda/pyfaidx), [Rscript](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/Rscript), and [RIdeogram](https://cran.r-project.org/web/packages/RIdeogram/vignettes/RIdeogram.html). 
-
-MegaLTR has been tested in Linux machines, Ubuntu 18.04 and 20.04.
+MegaLTR has been tested on Ubuntu 18.04 and 20.04.
 
  1. Install
  2. Required data
@@ -24,8 +24,7 @@ MegaLTR has been tested in Linux machines, Ubuntu 18.04 and 20.04.
  6. Output files example
 #
 ## **Install**
-The installation may be easily done with conda. If you don't have conda installed in your machine, please follow [this tutorial](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html).
-Once you have installed conda, you can easily install all dependencies for running MegaLTR in a new conda environment using the MegaLTR.yml file:
+The installation require conda. You can install all dependencies for running MegaLTR in a new conda environment using the MegaLTR.yml file. If you do not have conda, please follow [this tutorial](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html).
 
 1- Download repository from github 
 >`git clone https://github.com/MoradMMokhtar/MegaLTR.git` 
