@@ -146,4 +146,7 @@ We have collected the main output files in the Collected _Files folder in the ma
 ![Boxplot of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_boxplot.png)
  - Statistical distribution of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)
 ![Statistical distribution of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_chart.png)
+#
+## For more information and help
 
+To report bugs and give us suggestions, you can open an issue here. You may also contact us by e-mail morad.mokhtar@um6p.ma or achraf.elallali@um6p.ma
