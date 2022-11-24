@@ -46,9 +46,9 @@ valuename="V3"
 groupname="V2"
 programname=PORGRAM
 
-ppc<-plot_LTR.chart(data,valuename,groupname,"TimeK (Generation)","LTR-RT Types",programname )
+ppc<-plot_LTR.chart(data,valuename,groupname,"TimeK (Year)","LTR-RT Types",programname )
 ppc
-ppb<-plot_LTR.boxplot(data,valuename,groupname,"TimeK (Generation)","LTR-RT Types",programname )
+ppb<-plot_LTR.boxplot(data,valuename,groupname,"TimeK (Year)","LTR-RT Types",programname )
 ppb
 
 plot_LTR.save(paste0(mypath,".TimeK_chart"),ppc)

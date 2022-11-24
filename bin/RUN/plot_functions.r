@@ -19,7 +19,7 @@ plot_LTR.boxplot<-function(data,valuename,groupname,xlabel,ylabel,programname)
     scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
     theme(
       legend.position="none", plot.title = element_text(size=5),
-      axis.text.x = element_text(angle = 90, vjust = 1, hjust=1,size = 6),
+      axis.text.x = element_text(angle = 10, vjust = 1, hjust=1,size = 6),
       axis.title=element_text(size=10,face="bold")
     )+
     labs(caption = paste(programname,format(Sys.Date(), "%d %B %Y")),y=xlabel,x=ylabel)

@@ -45,7 +45,7 @@ Help()
    # Display Help
    echo "MegaLTR is a pipeline designed for high-throughput identification and classification of LTR-retrotransposons, insertion age estimation, detection of LTR-gene chimeras, and determination of nearby genes."
    echo
-   echo "     MegaLTR v1.07."
+   echo "     MegaLTR v2.0."
    echo
    echo "     Options:"
    echo "     -h     Print this Help."
@@ -156,11 +156,11 @@ LTRHARVEST=$userpath/LTR_HARVEST
 ###############################################################
 now="$(date)" 
 echo
-printf "\t#############################################\n\t##############  MegaLTR v1.06  ##############\n\t#############################################\n\n\tContributors: Morad M Mokhtar, Achraf El Allali\n\n"
+printf "\t#############################################\n\t##############  MegaLTR v2.0  ##############\n\t#############################################\n\n\tContributors: Morad M Mokhtar, Achraf El Allali\n\n"
 printf "\t$now \t Start time %s\n"  ### print current date
 echo
 printf "\tParameters: -A $Analysistype -F $Fastafilepath -G $gffpath -T $trna -P $outfileprefix -l $minlenltr -L $maxlenltr -d $mindisltr -D $maxdisltr -S $similar -M $matchpairs -B $TEsorterdb -C $TEsortercov -V $TEsortereval -Q $TEsorterrule -E $TEsorterhmm -R $RateOfEvolution -U $up -X $down -W $density1 -N $numberofchromosom -t $threads\n\n"
-
+conda activate MegaLTR
 if [ $check -ne 2 ]
    then
       printf "\tParameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis\n"
@@ -205,10 +205,9 @@ if ([ $Analysistype -eq 3 ] && [[ $gffpath =~ \.gz$ ]]); ### mode 3
    elif ([[ $Analysistype -eq 3 ]] && [ $(stat -c%s "$gffpath") -gt 500 ]); then
       cp $gffpath $userpath/$process_id.gff #### copy gff file
 fi
-if ([ $(stat -c%s "$userpath/$process_id.fna") -gt 500 ]);
+if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
    then
       ## {  ############## copy and split fasta #############
-         conda activate MegaLTR
             cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file 
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/\t.*//g' $userpath/$trna  ### remove unnecessary details from tRNA sequence headers
@@ -319,14 +318,15 @@ conda activate MegaLTR
       now13="$(date)"
       echo
       printf "\t$now13 \tMergeing of LTR_retriever, LTRdigest, and TEsorter results %s\n"
-      perl $RUN/TEsorter_Digest.pl  $Others/$process_id.tabout.tsv $Others/$process_id.LTR.tsv >$Others/LTR_Table_TEsorter_Digest.tsv
+      perl $RUN/TEsorter_Digest.pl  $Others/$process_id.tabout.tsv $Others/$process_id.LTR.tsv >$Others/2LTR_Table_TEsorter_Digest.tsv
+      python3 $RUN/classification_NEW_LTR_2.py $Others/2LTR_Table_TEsorter_Digest.tsv  $Others/new_LTR_Table_TEsorter_Digest.tsv
+      awk -F'\t' '{print $2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12"\t"$13"\t"$14"\t"$15"\t"$16"\t"$17"\t"$18"\t"$19"\t"$20"\t"$21"\t"$22"\t"$23"\t"$24"\t"$25"\t"$26"\t"$27"\t"$28"\t"$29"\t"$30"\t"$31"\t"$32"\t"$33"\t"$1"\t"$35"\t"$36"\t"$37"\t"$38}' $Others/new_LTR_Table_TEsorter_Digest.tsv > $Others/LTR_Table_TEsorter_Digest.tsv
       cp $Others/LTR_Table_TEsorter_Digest.tsv $Collected_Files ### LTR_retriever, LTRdigest, and TEsorter results in one file 
   # # }   
   # # {
-
+fi
       if ([ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]) ### mode 2
          then
-conda activate MegaLTR
             ########LTR insertion time ###########
             now14="$(date)"
             echo
@@ -347,15 +347,10 @@ conda activate MegaLTR
             now15="$(date)"
             echo
             printf "\t$now15 \tPreparing R plots files %s\n"
-            awk -F "\t" '{ print  $1"\t"$33"\t"$42 }' $Others/$process_id.Digest_TEsorter_Time.tsv > $Others/$process_id.time.ids1
-            awk -F '\t' '$2 == "Copia"' $Others/$process_id.time.ids1 >>$Rplots/$process_id.time.ids 
-            awk -F '\t' '$2 == "Gypsy"' $Others/$process_id.time.ids1 >>$Rplots/$process_id.time.ids 
-            awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/$process_id.Digest_TEsorter_Time.tsv > $Others/$process_id.length.ids1
-            awk -F '\t' '$2 == "Copia"' $Others/$process_id.length.ids1 >>$Rplots/$process_id.length.ids
-            awk -F '\t' '$2 == "Gypsy"' $Others/$process_id.length.ids1 >>$Rplots/$process_id.length.ids
-            awk -F "\t" '{ print  $1"\t""Copia and Gypsy""\t"$3 }' $Rplots/$process_id.time.ids > $Rplots/$process_id.time.ids2
-            awk -F "\t" '{ print  $1"\t""Copia and Gypsy""\t"$2"\t"$3"\t"$4"\t"$5 }' $Rplots/$process_id.length.ids >$Rplots/$process_id.length.ids2
-            ##module load R
+            awk -F "\t" '{ print  $1"\t"$33"\t"$42 }' $Others/$process_id.Digest_TEsorter_Time.tsv > $Rplots/$process_id.time.ids
+            awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/$process_id.Digest_TEsorter_Time.tsv > $Rplots/$process_id.length.ids
+            awk -F "\t" '{ print  $1"\t""Autonomous and Nonautonomous""\t"$3 }' $Rplots/$process_id.time.ids > $Rplots/$process_id.time.ids2
+            awk -F "\t" '{ print  $1"\t""Autonomous and Nonautonomous""\t"$2"\t"$3"\t"$4"\t"$5 }' $Rplots/$process_id.length.ids >$Rplots/$process_id.length.ids2
             Rscript $RUN/chart_plot.r $Rplots/$process_id.length.ids $Rplots/$process_id.time.ids  MegaLTR..$process_id $RUN 2>/dev/null ### Both LTR-RT insertion time and LTR-RT length destributions plots based on the LTR-RT superfamilies
             Rscript $RUN/chart_plot.r $Rplots/$process_id.length.ids2 $Rplots/$process_id.time.ids2  MegaLTR..$process_id  $RUN 2>/dev/null ### Both LTR-RT insertion time and LTR-RT length destributions plots for the whole genome
             cp $Rplots/*.png $Collected_Files ## Both LTR-RT insertion time and LTR-RT length destributions plots (.png)
@@ -369,12 +364,11 @@ conda activate MegaLTR
 
       if [ $Analysistype -eq 3 ] ### mode 3      # #####  TE-gene chimeras #########
          then
-conda activate MegaLTR
             now17="$(date)"
             echo
             printf "\t$now17 \tLTR-RT-gene chimeras started %s\n"
-            grep -P "\tgene\t" $gffpath > $userpath/$process_id.grep.gene ## retrieve gene start and end from GFF file
-            grep -P "\tpseudogene\t" $gffpath > $userpath/$process_id.grep.pseudogene ## retrieve pseudogene start and end from GFF file
+            grep -P "\tgene\t" $userpath/$process_id.gff > $userpath/$process_id.grep.gene ## retrieve gene start and end from GFF file
+            grep -P "\tpseudogene\t" $userpath/$process_id.gff > $userpath/$process_id.grep.pseudogene ## retrieve pseudogene start and end from GFF file
             cat $userpath/$process_id.grep.gene  $userpath/$process_id.grep.pseudogene > $userpath/$process_id.gene_pseudogene.gff  ## combine gene and pseudogene in one file
             perl $RUN/get-TE-within-gene.pl $Others/$process_id.Digest_TEsorter_Time.tsv  $userpath/$process_id.gene_pseudogene.gff $process_id $inside_genes > $inside_genes/$process_id.LTR_inside_genes.table  ## determine the LTR-RT located inside the gene start and end
             awk -F "\t" '{ print $1 }' $inside_genes/$process_id.LTR_inside_genes.table >$inside_genes/$process_id.LTR_inside_genes.table.ids
@@ -409,11 +403,20 @@ conda activate MegaLTR
             echo
             printf "\t$now20 \tVisualization of gene density and LTR-RTs across chromosomes %s\n"
             awk -F "\t" '{ print  $33"\t"$33"\t"$2"\t"$3"\t"$4"\t"$33 }' $Others/$process_id.Digest_TEsorter_Time.tsv > $densitypath/$process_id.figure.distrbution1
-            awk -F '\t' 'BEGIN { OFS=FS } { gsub("Copia", "box", $2); print }' $densitypath/$process_id.figure.distrbution1 > $densitypath/$process_id.figure.distrbution2
+            sed -i -E 's/Autonomous://g' $densitypath/$process_id.figure.distrbution1
+            sed -i -E 's/Nonautonomous://g' $densitypath/$process_id.figure.distrbution1
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("Copia", "triangle", $2); print }' $densitypath/$process_id.figure.distrbution1 > $densitypath/$process_id.figure.distrbution2
             awk -F '\t' 'BEGIN { OFS=FS } { gsub("Copia", "6a3d9a", $6); print }' $densitypath/$process_id.figure.distrbution2 > $densitypath/$process_id.figure.distrbution3
             awk -F '\t' 'BEGIN { OFS=FS } { gsub("Gypsy", "triangle", $2); print }' $densitypath/$process_id.figure.distrbution3 > $densitypath/$process_id.figure.distrbution4
-            awk -F '\t' 'BEGIN { OFS=FS } { gsub("Gypsy", "ff7f00", $6); print }' $densitypath/$process_id.figure.distrbution4 > $densitypath/$process_id.figure.distrbution5
-            grep "##sequence-region" $gffpath > $densitypath/"$process_id"_karyotype
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("Gypsy", "33a02c", $6); print }' $densitypath/$process_id.figure.distrbution4 > $densitypath/$process_id.figure.distrbution5
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("BARE-2", "triangle", $2); print }' $densitypath/$process_id.figure.distrbution5 > $densitypath/$process_id.figure.distrbution6
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("BARE-2", "ff7f00", $6); print }' $densitypath/$process_id.figure.distrbution6 > $densitypath/$process_id.figure.distrbution7
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("TR-GAG", "triangle", $2); print }' $densitypath/$process_id.figure.distrbution7 > $densitypath/$process_id.figure.distrbution8
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("TR-GAG", "ff0080", $6); print }' $densitypath/$process_id.figure.distrbution8 > $densitypath/$process_id.figure.distrbution9
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("Unknown", "triangle", $2); print }' $densitypath/$process_id.figure.distrbution9 > $densitypath/$process_id.figure.distrbution10
+            awk -F '\t' 'BEGIN { OFS=FS } { gsub("Unknown", "9d8477", $6); print }' $densitypath/$process_id.figure.distrbution10 > $densitypath/$process_id.figure.distrbution11
+
+            grep "##sequence-region" $userpath/$process_id.gff > $densitypath/"$process_id"_karyotype
             sed -i 's/##sequence-region //g' $densitypath/"$process_id"_karyotype
             sed -i 's/ /\t/g' $densitypath/"$process_id"_karyotype
             awk -F "\t" '{print $1"\t"$4"\t"$5"\t""1"}' $userpath/$process_id.gene_pseudogene.gff >$densitypath/gene_anno
@@ -429,7 +432,7 @@ conda activate MegaLTR
                   echo "Chr	Start	End	Value" >$densitypath/gene_anno_counter_ok
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
                   echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
-                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution5 >>$densitypath/figure_distrbution5_ok
+                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
                   Rscript $RUN/density_width.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
                   cp $densitypath/chromosome.svg $Collected_Files
                   cp $densitypath/chromosome.png $Collected_Files
@@ -443,7 +446,7 @@ conda activate MegaLTR
                   echo "Chr	Start	End	Value" >$densitypath/gene_anno_counter_ok
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
                   echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
-                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution5 >>$densitypath/figure_distrbution5_ok
+                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
                   Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
                   cp $densitypath/chromosome.svg $Collected_Files
                   cp $densitypath/chromosome.png $Collected_Files            
@@ -453,9 +456,8 @@ conda activate MegaLTR
       fi
   # #}
       rm $userpath/$process_id.fna
-      rm $FASTA/*.fna
+            rm $FASTA/*.fna
+      rm $userpath/$process_id.gff
       now21="$(date)"
       echo
       printf "\t$now21 \tMegaLTR Done, The results saved in ($Collected_Files) %s\n"
-   exit 1
-fi
