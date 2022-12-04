@@ -221,17 +221,19 @@ if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 
             faidx --split-files $userpath/$process_id.fna
       ## }
       ## #{    ################## LTR_Finder ########### 
-            python3 $RUN/LTR_FINDER_threads.py $FASTA $threads $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $trna $LAI $FASTA
-            find . -name "*.finder" -type f -size -398c -delete ##delet all files .finder less than 398 bytes
-            cat $FASTA/*.fna.finder >$FASTA/all.fna.finder
+            python3 $RUN/LTR_FINDER_threads.py $FASTA $threads $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $trna $LAI $FASTA > /dev/null 2>/dev/null
             perl $RUN/convert_ltr_finder2.pl $FASTA/all.fna.finder > $FASTA/all.finder.scn
             sed -i -r 's/(\s+)?\S+//11' $FASTA/all.finder.scn
             sed '1,12d' $FASTA/all.finder.scn > $FASTA/all.finder.scn2
             cp $FASTA/all.finder.scn $Collected_Files
-            sed -i '1,7d' $FASTA/*.fna.finder
-            sed -i '$ d' $FASTA/*.fna.finder
-            sed -i 's/No LTR Retrotransposons Found//g' $FASTA/*.fna.finder
-            cat $FASTA/*.fna.finder >$FINDER/$process_id.fna.LTR_finder.1
+            for i in $FASTA/*.fna.finder
+            do
+               name=$(basename $i ".fna.finder")
+               sed -i '1,7d' $FASTA/$name.fna.finder
+               sed -i '$ d' $FASTA/$name.fna.finder
+               sed -i 's/No LTR Retrotransposons Found//g' $FASTA/$name.fna.finder
+               cat $FASTA/$name.fna.finder >>$FINDER/$process_id.fna.LTR_finder.1
+            done
             echo "index	SeqID	Location	LTR len	Inserted element len	TSR	PBS	PPT	RT	IN (core)	IN (c-term)	RH	Strand	Score	Sharpness	Similarity" >$FINDER/$process_id.fna.LTR_finder.tsv
             awk 'NF > 0' $FINDER/$process_id.fna.LTR_finder.1 >>$FINDER/$process_id.fna.LTR_finder.tsv
             cut -f2- $FINDER/$process_id.fna.LTR_finder.tsv >$FINDER/$process_id.fna.LTR_finder.tsv2
@@ -248,20 +250,16 @@ if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 
 		      do
    			   gt suffixerator -db $fst -indexname $fst -tis -suf -lcp -des -ssp -sds -dna
 		      done
-		      python3 $RUN/LTR_HARVEST_threads.py $FASTA $threads $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similar $LTRHARVEST
-            rm $FASTA/*.des $FASTA/*.esq $FASTA/*.lcp $FASTA/*.llv $FASTA/*.md5 $FASTA/*.prj $FASTA/*.sds $FASTA/*.suf
-            find . -name "*.harvest" -type f -size -570c -delete ##delet all files .harvest less than 570 bytes
-            find . -name "*.harvest.gff3" -type f -size -1c -delete ##delet all files .harvest.gff3 less than 1 bytes
-            sed -i '1,12d' $FASTA/*.harvest
+		      python3 $RUN/LTR_HARVEST_threads.py $FASTA $threads $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similar $LTRHARVEST > /dev/null 2>/dev/null
             for i in $FASTA/*.harvest
             do
                name=$(basename $i ".fna.harvest")
                sed -i 's/  / /g' $FASTA/$name.fna.harvest
                sed -i -r 's/(\s+)?\S+//11' $FASTA/$name.fna.harvest
                awk -F "\t" -v chr=$name '{print $0" "'chr'}' $i >$i.2
+               cat $i.2 >>$FASTA/all.harvest.3
             done
-            cat $FASTA/*.harvest.2 >$FASTA/all.harvest.3
-            printf "# args=-index $FASTA/$process_id.fna -maxdistltr $maxdisltr -mindistltr $mindisltr -maxlenltr $maxlenltr -minlenltr $minlenltr -similar $similar -seqids yes -gff3 $FASTA/$process_id.fna.harvest.gff3\n# predictions are reported in the following way\n# s(ret) e(ret) l(ret) s(lLTR) e(lLTR) l(lLTR) s(rLTR) e(rLTR) l(rLTR) sim(LTRs) seq-nr \n# where:\n# s = starting position\n# e = ending position\n# l = length\n# ret = LTR-retrotransposon\n# lLTR = left LTR\n# rLTR = right LTR\n# sim = similarity\n# seq-nr = sequence number" >$FASTA/all.harvest
+            printf "# args=-index $FASTA/$process_id.fna -maxdistltr $maxdisltr -mindistltr $mindisltr -maxlenltr $maxlenltr -minlenltr $minlenltr -similar $similar -seqids yes -gff3 $FASTA/$process_id.fna.harvest.gff3\n# predictions are reported in the following way\n# s(ret) e(ret) l(ret) s(lLTR) e(lLTR) l(lLTR) s(rLTR) e(rLTR) l(rLTR) sim(LTRs) seq-nr \n# where:\n# s = starting position\n# e = ending position\n# l = length\n# ret = LTR-retrotransposon\n# lLTR = left LTR\n# rLTR = right LTR\n# sim = similarity\n# seq-nr = sequence number\n" >$FASTA/all.harvest
             cat $FASTA/*.harvest.3 >>$FASTA/all.harvest
             cat $FASTA/all.harvest $FASTA/all.finder.scn >$FASTA/all.harvest.finder.combine
             awk -F " " '{print $11}' $FASTA/all.harvest.3 > $FASTA/ids.list
@@ -286,7 +284,7 @@ if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 
          now6="$(date)"
          echo
          printf "\t$now6 \tLTR_retriever Started %s\n"
-         bash $RUN/newLTR_retriever.sh  $userpath/$process_id.fna $userpath $LAI $minlenltr $process_id $Collected_Files $threads $LTRretriever
+         bash $RUN/newLTR_retriever.sh  $userpath/$process_id.fna $userpath $LAI $minlenltr $process_id $Collected_Files $threads $LTRretriever > /dev/null 2>/dev/null
          now7="$(date)"
          echo
          printf "\t$now7 \tLTR_retriever Done %s\n"
@@ -325,6 +323,8 @@ conda activate MegaLTR
       python3 $RUN/classification_NEW_LTR_2.py $Others/2LTR_Table_TEsorter_Digest.tsv  $Others/new_LTR_Table_TEsorter_Digest.tsv
       awk -F'\t' '{print $2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12"\t"$13"\t"$14"\t"$15"\t"$16"\t"$17"\t"$18"\t"$19"\t"$20"\t"$21"\t"$22"\t"$23"\t"$24"\t"$25"\t"$26"\t"$27"\t"$28"\t"$29"\t"$30"\t"$31"\t"$32"\t"$33"\t"$1"\t"$35"\t"$36"\t"$37"\t"$38}' $Others/new_LTR_Table_TEsorter_Digest.tsv > $Others/LTR_Table_TEsorter_Digest.tsv
       cp $Others/LTR_Table_TEsorter_Digest.tsv $Collected_Files ### LTR_retriever, LTRdigest, and TEsorter results in one file 
+      awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.length.ids.forstat
+      python3 $RUN/super_familly_stat.py $Others/$process_id.length.ids.forstat $Collected_Files/$process_id.statistics.tsv ##LTR superfamily summary
   # # }   
   # # {
 fi
@@ -438,9 +438,10 @@ fi
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
                   echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
-                  Rscript $RUN/density_width.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
-                  cp $densitypath/chromosome.svg $Collected_Files
-                  cp $densitypath/chromosome.png $Collected_Files
+                  python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
+                  Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
+                  cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
+                  cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"
                fi
                if [ $numberofchromosom -ge 8 ] ### the numbers of chromosomes more than or equal 8 to justfay the image
                   then
@@ -452,9 +453,10 @@ fi
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
                   echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
+                  python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
                   Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
-                  cp $densitypath/chromosome.svg $Collected_Files
-                  cp $densitypath/chromosome.png $Collected_Files            
+                  cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
+                  cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"
                fi
 
          ##exit

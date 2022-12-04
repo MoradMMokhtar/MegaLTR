@@ -33,12 +33,11 @@ data=glob.glob(f"{path}/*.fna")
 
 from multiprocessing import Pool
 def f(fname):
-     
+    fastabase=fname.split('/')[-1].replace('.fna','')
     #Function is bieng executed
-    os.system(f"{LTRFINDER} {fname} -w 2 -C -D {maxdisltr} -d {mindisltr} -L {maxlenltr} -l {minlenltr} -p {matchpairs} -M {similarFinder} -s {userpath}/{trna} >{fname}.finder")
+    os.system(f"{LTRFINDER} {fname} -w 2 -C -D {maxdisltr} -d {mindisltr} -L {maxlenltr} -l {minlenltr} -p {matchpairs} -M {similarFinder} -s {userpath}/{trna} >{fname}.finder && find . -name '{fastabase}.fna.finder' -type f -size -398c -delete && cat {fname}.finder >>{FASTA}/all.fna.finder")
     #os.system(f"bash threads.sh {x} LTRFINDER")
     
-
 # set a number of processes to use ncore each ### with work as for
 with Pool(int(nprocess)) as p:
     results  = p.map(f, data)

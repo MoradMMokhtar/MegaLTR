@@ -444,4 +444,4 @@ dependencies:
   - zope.event=4.5.0=py37_0
   - zope.interface=5.4.0=py37h7f8727e_0
   - zstd=1.4.9=haebb681_0
-prefix: /home/alsamman/anaconda3
+prefix: /home/user/anaconda3

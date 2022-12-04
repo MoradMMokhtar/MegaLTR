@@ -5,7 +5,7 @@ plot_LTR.chart<-function(data,valuename,groupname,xlabel,ylabel,programname)
   p1 <- ggplot(data=data, aes_string(x=valuename, group=groupname, fill=groupname)) +
     geom_density(adjust=1.5, alpha=.4) + guides(fill=guide_legend(title=ylabel))+
     labs(caption = paste(programname,format(Sys.Date(), "%d %B %Y")),x=xlabel)+
-    scale_x_continuous(labels = point,breaks = scales::pretty_breaks(n = 10))+
+    scale_x_continuous(labels = point,breaks = scales::pretty_breaks(n = 5))+
     scale_y_continuous(labels = point,breaks = scales::pretty_breaks(n = 20))
   p1
 }

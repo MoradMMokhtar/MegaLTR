@@ -22,6 +22,9 @@ if os.path.isfile(inputfile) :
                 full_lenght=int(splitedline[4])  #LTR-RT full length
                 ir_lenght=int(full_lenght-ltr_lenght)
                 clade=splitedline[32] #family column
+                status=splitedline[33]
+                if status =='unknown' :
+                    clade='Unknown'
                 subclass=splitedline[36] #domains column
                 subclass.replace(" ","")
                 subb_splited=[sub[:sub.index("|")] if "|" in subclass else 'NONE' for sub in subclass.split(" ")]
