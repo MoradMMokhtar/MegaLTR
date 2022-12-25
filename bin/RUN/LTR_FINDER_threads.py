@@ -16,6 +16,7 @@ userpath=sys.argv[10]
 trna=sys.argv[11]
 LAI=sys.argv[12]
 FASTA=sys.argv[13]
+chrids=sys.argv[14]
 
 # set number of CPUs to run on
 ncore = f"{nprocess}"
@@ -29,7 +30,15 @@ os.environ["MKL_NUM_THREADS"] = ncore
 os.environ["VECLIB_MAXIMUM_THREADS"] = ncore
 os.environ["NUMEXPR_NUM_THREADS"] = ncore
 
-data=glob.glob(f"{path}/*.fna")
+# data=glob.glob(f"{path}/*.fna")
+
+ids = []
+
+with open("chr.ids") as file:
+    for i, line in enumerate(file):
+        ids.append(path + '/' + line.strip('\n') + '.fna')
+
+# print(ids)
 
 from multiprocessing import Pool
 def f(fname):
@@ -40,4 +49,4 @@ def f(fname):
     
 # set a number of processes to use ncore each ### with work as for
 with Pool(int(nprocess)) as p:
-    results  = p.map(f, data)
+    results  = p.map(f, ids)

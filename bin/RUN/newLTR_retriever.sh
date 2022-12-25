@@ -24,4 +24,4 @@ cp $LAI/$process_id.fna.out.superfam.size.list $Collected_Files ##LTR superfamil
 cp $LAI/$process_id.fna.defalse $Collected_Files
 cp $LAI/$process_id.fna.masked $Collected_Files
 cp $LAI/$process_id.fna.out $Collected_Files
-cp $LAI/$process_id.fna.tbl $Collected_Files
+#cp $LAI/$process_id.fna.tbl $Collected_Files

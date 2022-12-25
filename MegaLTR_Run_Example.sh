@@ -151,6 +151,8 @@ mkdir -p $userpath/LTR_FINDER
 FINDER=$userpath/LTR_FINDER
 mkdir -p $userpath/LTR_HARVEST
 LTRHARVEST=$userpath/LTR_HARVEST
+mkdir -p $userpath/LTRFiles
+LTRFiles=$userpath/LTRFiles
 
 ###############################################################
 #### MegaLTR process the start.                               #
@@ -218,10 +220,12 @@ if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 
             now2="$(date)"
             echo
             printf "\n\t$now2 \tLTR_FINDER Started %s\n"
+            grep ">" $userpath/$process_id.fna >$FASTA/chr.ids
+            sed -i 's/>//g' $FASTA/chr.ids
             faidx --split-files $userpath/$process_id.fna
       ## }
       ## #{    ################## LTR_Finder ########### 
-            python3 $RUN/LTR_FINDER_threads.py $FASTA $threads $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $trna $LAI $FASTA > /dev/null 2>/dev/null
+            python3 $RUN/LTR_FINDER_threads.py $FASTA $threads $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $trna $LAI $FASTA $FASTA/chr.ids > /dev/null 2>/dev/null
             perl $RUN/convert_ltr_finder2.pl $FASTA/all.fna.finder > $FASTA/all.finder.scn
             sed -i -r 's/(\s+)?\S+//11' $FASTA/all.finder.scn
             sed '1,12d' $FASTA/all.finder.scn > $FASTA/all.finder.scn2
@@ -325,6 +329,12 @@ conda activate MegaLTR
       cp $Others/LTR_Table_TEsorter_Digest.tsv $Collected_Files ### LTR_retriever, LTRdigest, and TEsorter results in one file 
       awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.length.ids.forstat
       python3 $RUN/super_familly_stat.py $Others/$process_id.length.ids.forstat $Collected_Files/$process_id.statistics.tsv ##LTR superfamily summary
+      awk -F "\t" '{ print  $2"\t"$3"\t"$4"\t"$5"\t"$32"\t"$33"\t"$34 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.ids.extract_seq
+      cd $LTRFiles
+      split -n l/100 $Others/$process_id.ids.extract_seq
+      python3 $RUN/LTR_Seq_threads.py $userpath/$process_id.fna  $LTRFiles $Collected_Files $threads $RUN/extractseq-id-start-end.pl
+      cp $ltrdigest/"$process_id"_pbs.fas $Collected_Files/$process_id.PBS.Sequence.fa
+      cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa
   # # }   
   # # {
 fi
@@ -367,8 +377,8 @@ fi
 
       if [ $Analysistype -eq 3 ] ### mode 3      # #####  TE-gene chimeras #########
          then
-	 conda activate MegaLTR
-	 gffpath=$userpath/$process_id.gff
+	         conda activate MegaLTR
+	         gffpath=$userpath/$process_id.gff
             now17="$(date)"
             echo
             printf "\t$now17 \tLTR-RT-gene chimeras started %s\n"

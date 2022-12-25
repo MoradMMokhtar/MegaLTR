@@ -150,6 +150,8 @@ mkdir -p $userpath/LTR_FINDER
 FINDER=$userpath/LTR_FINDER
 mkdir -p $userpath/LTR_HARVEST
 LTRHARVEST=$userpath/LTR_HARVEST
+mkdir -p $userpath/LTRFiles
+LTRFiles=$userpath/LTRFiles
 
 ###############################################################
 #### MegaLTR process the start.                               #
@@ -208,6 +210,9 @@ fi
 if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
    then
       ## {  ############## copy and split fasta #############
+: <<'END'
+END
+
             cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file 
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/\t.*//g' $userpath/$trna  ### remove unnecessary details from tRNA sequence headers
@@ -215,10 +220,12 @@ if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 
             now2="$(date)"
             echo
             printf "\n\t$now2 \tLTR_FINDER Started %s\n"
+            grep ">" $userpath/$process_id.fna >$FASTA/chr.ids
+            sed -i 's/>//g' $FASTA/chr.ids
             faidx --split-files $userpath/$process_id.fna
       ## }
       ## #{    ################## LTR_Finder ########### 
-            python3 $RUN/LTR_FINDER_threads.py $FASTA $threads $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $trna $LAI $FASTA > /dev/null 2>/dev/null
+            python3 $RUN/LTR_FINDER_threads.py $FASTA $threads $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $trna $LAI $FASTA $FASTA/chr.ids > /dev/null 2>/dev/null
             perl $RUN/convert_ltr_finder2.pl $FASTA/all.fna.finder > $FASTA/all.finder.scn
             sed -i -r 's/(\s+)?\S+//11' $FASTA/all.finder.scn
             sed '1,12d' $FASTA/all.finder.scn > $FASTA/all.finder.scn2
@@ -288,8 +295,7 @@ if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 
 
 #   # # }
   # # {     #######ltrdigest ###########
-
-conda activate MegaLTR
+      conda activate MegaLTR
       now8="$(date)"
       echo
       printf "\t$now8 \tLTRdigest Started %s\n"
@@ -299,6 +305,7 @@ conda activate MegaLTR
       printf "\t$now9 \tLTRdigest Done %s\n"
   # # }
   # # {     #######TEsorter ###########
+
       now10="$(date)"
       echo
       printf "\t$now10 \tTEsorter Started %s\n"
@@ -321,7 +328,13 @@ conda activate MegaLTR
       awk -F'\t' '{print $2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12"\t"$13"\t"$14"\t"$15"\t"$16"\t"$17"\t"$18"\t"$19"\t"$20"\t"$21"\t"$22"\t"$23"\t"$24"\t"$25"\t"$26"\t"$27"\t"$28"\t"$29"\t"$30"\t"$31"\t"$32"\t"$33"\t"$1"\t"$35"\t"$36"\t"$37"\t"$38}' $Others/new_LTR_Table_TEsorter_Digest.tsv > $Others/LTR_Table_TEsorter_Digest.tsv
       cp $Others/LTR_Table_TEsorter_Digest.tsv $Collected_Files ### LTR_retriever, LTRdigest, and TEsorter results in one file 
       awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.length.ids.forstat
-      python3 $RUN/super_familly_stat.py $Others/$process_id.length.ids.forstat $Collected_Files/$process_id.statistics.tsv ##LTR superfamily summary
+      python3 $RUN/super_familly_stat.py $Others/$process_id.length.ids.forstat $Collected_Files/$process_id.statistics.tsv ##LTR superfamily summary    
+      awk -F "\t" '{ print  $2"\t"$3"\t"$4"\t"$5"\t"$32"\t"$33"\t"$34 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.ids.extract_seq
+      cd $LTRFiles
+      split -n l/100 $Others/$process_id.ids.extract_seq
+      python3 $RUN/LTR_Seq_threads.py $userpath/$process_id.fna  $LTRFiles $Collected_Files $threads $RUN/extractseq-id-start-end.pl
+      cp $ltrdigest/"$process_id"_pbs.fas $Collected_Files/$process_id.PBS.Sequence.fa
+      cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa      
   # # }   
   # # {
 fi
