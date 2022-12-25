@@ -19,8 +19,8 @@ cp $LAI/$process_id.fna.pass.list.gff3 $Collected_Files ##GFF3 format for intact
 cp $LAI/$process_id.fna.LTRlib.redundant.fa $Collected_Files ##All LTR-RTs with redundancy
 cp $LAI/$process_id.fna.LTRlib.fa $Collected_Files ##All non-redundant LTR-RTs
 cp $LAI/$process_id.fna.LTR.gff3 $Collected_Files ##GFF3 format
-cp $LAI/$process_id.fna.out.fam.size.list $Collected_Files ##LTR family summary
-cp $LAI/$process_id.fna.out.superfam.size.list $Collected_Files ##LTR superfamily summary
+#cp $LAI/$process_id.fna.out.fam.size.list $Collected_Files ##LTR family summary
+#cp $LAI/$process_id.fna.out.superfam.size.list $Collected_Files ##LTR superfamily summary
 cp $LAI/$process_id.fna.defalse $Collected_Files
 cp $LAI/$process_id.fna.masked $Collected_Files
 cp $LAI/$process_id.fna.out $Collected_Files
