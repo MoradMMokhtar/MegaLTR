@@ -99,30 +99,32 @@ We have collected the main output files in the Collected _Files folder in the ma
 |--|--|--|
 | 1 | *.fna.pass.list | All LTR-RTs that passed the filtering step |
 | 2 | *.fna.nmtf.pass.list | Non-TGCA LTR-RTs that passed the filtering step |
-|3  | *.fna.pass.list.gff3 | GFF3 format for intact LTR-RTs |
+| 3 | *.fna.pass.list.gff3 | GFF3 format for intact LTR-RTs |
 | 4 | *.fna.LTRlib.redundant.fa | All LTR-RTs with redundancy in FASTA format |
 | 5 | *.fna.LTRlib.fa | All non-redundant LTR-RTs in FASTA format |
 | 6 | *.fna.LTR.gff3 | GFF3 format |
-| 7 | *.fna.out.fam.size.list | LTR family summary |
-| 8 | *.fna.out.superfam.size.list | LTR superfamily summary |
-| 9 | all.finder.scn | The LTR_Finder results |
-| 10 | all.harvest | The LTR_harvest results |
-| 11 | genes_up_and_down_LTR.tsv | Genes up- and down-stream of LTR-RT elements |
-| 12 |LTR_Table_Digest_TEsorter _Time_nongene_and_gene.tsv  | combine the results of LTR-Finder, LTRharvest, LTR-retriever, LTRdigest, TEsorter, insertion time, LTR-RT-gene chimeras, and LTR-RT near genes in one file |
-| 13 | LTR_Table_TEsorter_Digest.tsv | Mergeing of LTR_retriever, LTRdigest, and TEsorter results in one file |
-| 14 | *.Digest_TEsorter_Time.tsv | Mergeing of LTR_retriever, LTRdigest, TEsorter, and insertion time results in one file |
-| 15 | *.fna.harvest.combine.gff3 | The LTR_harvest results in GFF3 format |
-| 16 | *.fna.defalse | the false LTR-RTs that does not pass the filtering step |
-| 17 | *.fna.masked | All LTRs recognized by RepeatMasker |
-| 18 | chromosome.png | visualization of gene density and LTR-RTs across chromosomes PNG format |
-| 19 | *.length.ids2.Length_boxplot.png | the boxplot of LTR-RT length for both LTR-RTs superfamilies |
-| 20 | *.length.ids2.Length_chart.png | statistical distribution of LTR-RT length for both LTR-RTs superfamilies |
-| 21 | *.length.ids2.TimeK_boxplot.png | the boxplot of LTR-RT insertion age for both LTR-RTs superfamilies |
-| 22 | *.length.ids2.TimeK_chart.png | statistical distribution of LTR-RT insertion age for both LTR-RTs superfamilies |
-| 23 | *.length.ids.Length_boxplot.png | the boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy) |
-| 24 | *.length.ids.Length_chart.png | statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy) |
-| 25 | *.length.ids.TimeK_boxplot.png | the boxplot of LTR-RT insertion age for each LTR-RTs superfamily (Copia and Gypsy) |
-| 26 | *.length.ids.TimeK_chart.png | statistical distribution of LTR-RT insertion age for each LTR-RTs superfamily (Copia and Gypsy) |
+| 7 | *.statistics.tsv | LTR family summary |
+| 8 | all.finder.scn | The LTR_Finder results |
+| 9 | all.harvest | The LTR_harvest results |
+| 10 | genes_up_and_down_LTR.tsv | Genes up- and down-stream of LTR-RT elements |
+| 11 |LTR_Table_Digest_TEsorter _Time_nongene_and_gene.tsv  | combine the results of LTR-Finder, LTRharvest, LTR-retriever, LTRdigest, TEsorter, insertion time, LTR-RT-gene chimeras, and LTR-RT near genes in one file |
+| 12 | LTR_Table_TEsorter_Digest.tsv | Mergeing of LTR_retriever, LTRdigest, and TEsorter results in one file |
+| 13 | *.Digest_TEsorter_Time.tsv | Mergeing of LTR_retriever, LTRdigest, TEsorter, and insertion time results in one file |
+| 14 | *.fna.harvest.combine.gff3 | The LTR_harvest results in GFF3 format |
+| 15 | *.fna.defalse | the false LTR-RTs that does not pass the filtering step |
+| 16 | *.fna.masked | All LTRs recognized by RepeatMasker |
+| 17 | chromosome.png | visualization of gene density and LTR-RTs across chromosomes PNG format |
+| 18 | *.length.ids2.Length_boxplot.png | the boxplot of LTR-RT length for both LTR-RTs superfamilies |
+| 19 | *.length.ids2.Length_chart.png | statistical distribution of LTR-RT length for both LTR-RTs superfamilies |
+| 20 | *.length.ids2.TimeK_boxplot.png | the boxplot of LTR-RT insertion age for both LTR-RTs superfamilies |
+| 21 | *.length.ids2.TimeK_chart.png | statistical distribution of LTR-RT insertion age for both LTR-RTs superfamilies |
+| 22 | *.length.ids.Length_boxplot.png | the boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy) |
+| 23 | *.length.ids.Length_chart.png | statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy) |
+| 24 | *.length.ids.TimeK_boxplot.png | the boxplot of LTR-RT insertion age for each LTR-RTs superfamily (Copia and Gypsy) |
+| 25 | *.length.ids.TimeK_chart.png | statistical distribution of LTR-RT insertion age for each LTR-RTs superfamily (Copia and Gypsy) |
+| 26 | *.PBS.Sequence.fa | All PBS in FASTA format |
+| 27 | *.PPT.Sequence.fa | All PPT in FASTA format |
+| 28 | LTR-RT_Sequence.fa | All intact LTR-RTs in FASTA format |
  #
  ## Output files example (images)
  
