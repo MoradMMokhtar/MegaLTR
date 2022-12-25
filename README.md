@@ -118,10 +118,10 @@ We have collected the main output files in the Collected _Files folder in the ma
 | 19 | *.length.ids2.Length_chart.png | statistical distribution of LTR-RT length for both LTR-RTs superfamilies |
 | 20 | *.length.ids2.TimeK_boxplot.png | the boxplot of LTR-RT insertion age for both LTR-RTs superfamilies |
 | 21 | *.length.ids2.TimeK_chart.png | statistical distribution of LTR-RT insertion age for both LTR-RTs superfamilies |
-| 22 | *.length.ids.Length_boxplot.png | the boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy) |
-| 23 | *.length.ids.Length_chart.png | statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy) |
-| 24 | *.length.ids.TimeK_boxplot.png | the boxplot of LTR-RT insertion age for each LTR-RTs superfamily (Copia and Gypsy) |
-| 25 | *.length.ids.TimeK_chart.png | statistical distribution of LTR-RT insertion age for each LTR-RTs superfamily (Copia and Gypsy) |
+| 22 | *.length.ids.Length_boxplot.png | the boxplot of LTR-RT length for each LTR-RTs superfamily  |
+| 23 | *.length.ids.Length_chart.png | statistical distribution of LTR-RT length for each LTR-RTs superfamily |
+| 24 | *.length.ids.TimeK_boxplot.png | the boxplot of LTR-RT insertion age for each LTR-RTs superfamily |
+| 25 | *.length.ids.TimeK_chart.png | statistical distribution of LTR-RT insertion age for each LTR-RTs superfamily |
 | 26 | *.PBS.Sequence.fa | All PBS in FASTA format |
 | 27 | *.PPT.Sequence.fa | All PPT in FASTA format |
 | 28 | LTR-RT_Sequence.fa | All intact LTR-RTs in FASTA format |
