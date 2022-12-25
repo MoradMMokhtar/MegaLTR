@@ -128,24 +128,24 @@ We have collected the main output files in the Collected _Files folder in the ma
  
  - Genes and LTR-RTs density across chromosomes
 
-![Genes and LTR-RTs density across chromosomes](https://bioinformatics.um6p.ma/MegaLTR/images/chromosomes.png)
- - Boxplot of LTR-RTs length for both LTR-RTs superfamilies
+![Genes and LTR-RTs density across chromosomes](https://bioinformatics.um6p.ma/MegaLTR/images/chromosomes1.png)
+ - Boxplot of LTR-RTs length for all LTR-RTs
 
-![Boxplot of LTR-RTs length for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_boxplot.png)
- - Statistical distribution of LTR-RTs length for both LTR-RTs superfamilies
-  ![Statistical distribution of LTR-RTs length for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_chart.png)
- - Boxplot of LTR-RTs insertion age for both LTR-RTs superfamilies
-  ![Boxplot of LTR-RTs insertion age for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.TimeK_boxplot.png)
- - Statistical distribution of LTR-RTs insertion age for both LTR-RTs superfamilies
-  ![Statistical distribution of LTR-RTs insertion age for both LTR-RTs superfamilies](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.Length_boxplot.png)
- -  Boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)
-  ![Boxplot of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_boxplot.png)
- - Statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)
-![Statistical distribution of LTR-RT length for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.Length_chart.png)
- - Boxplot of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)
-![Boxplot of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_boxplot.png)
- - Statistical distribution of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)
-![Statistical distribution of LTR-RTs insertion age for each LTR-RTs superfamily (Copia and Gypsy)](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_chart.png)
+![Boxplot of LTR-RTs length for all LTR-RTs](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_boxplot1.png)
+ - Statistical distribution of LTR-RTs length for all LTR-RTs
+  ![Statistical distribution of LTR-RTs length for all LTR-RTs](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.Length_chart1.png)
+ - Boxplot of LTR-RTs insertion age for all LTR-RTs
+  ![Boxplot of LTR-RTs insertion age for all LTR-RTs](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.TimeK_boxplot1.png)
+ - Statistical distribution of LTR-RTs insertion age for all LTR-RTs
+  ![Statistical distribution of LTR-RTs insertion age for all LTR-RTs](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids2.TimeK_chart1.png)
+ -  Boxplot of LTR-RT length for each LTR-RTs class
+  ![Boxplot of LTR-RT length for each LTR-RTs class](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.Length_boxplot1.png)
+ - Statistical distribution of LTR-RT length for each LTR-RTs class
+![Statistical distribution of LTR-RT length for each LTR-RTs class](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.Length_chart1.png)
+ - Boxplot of LTR-RTs insertion age for each LTR-RTs class
+![Boxplot of LTR-RTs insertion age for each LTR-RTs class](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_boxplot1.png)
+ - Statistical distribution of LTR-RTs insertion age for each LTR-RTs class
+![Statistical distribution of LTR-RTs insertion age for each LTR-RTs class](https://bioinformatics.um6p.ma/MegaLTR/images/new_test_17.length.ids.TimeK_chart1.png)
 #
 ## For more information and help
 
