@@ -305,7 +305,6 @@ END
       printf "\t$now9 \tLTRdigest Done %s\n"
   # # }
   # # {     #######TEsorter ###########
-
       now10="$(date)"
       echo
       printf "\t$now10 \tTEsorter Started %s\n"
@@ -447,7 +446,7 @@ fi
                   echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
                   python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
-                  Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
+                  Rscript $RUN/density_width.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
                   cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
                   cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"
                fi
