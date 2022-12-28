@@ -89,7 +89,7 @@ Go to the MegaLTR folder
 
 ## Run Example
 
-    bash MegaLTR_Run_Example.sh -A 2 -F NC_003070.9_Arabidopsis_thaliana.fna.gz -G Arabidopsis_thaliana.gff.gz
+    bash MegaLTR_Run_Example.sh -A 3 -F NC_003070.9_Arabidopsis_thaliana.fna.gz -G Arabidopsis_thaliana.gff.gz
 
 ## Output files
 
