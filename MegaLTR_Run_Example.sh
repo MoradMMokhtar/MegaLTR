@@ -436,7 +436,10 @@ fi
             sed -i 's/ /\t/g' $densitypath/"$process_id"_karyotype
             awk -F "\t" '{print $1"\t"$4"\t"$5"\t""1"}' $userpath/$process_id.gene_pseudogene.gff >$densitypath/gene_anno
             python3 $RUN/counter.py $densitypath/gene_anno $density1 $densitypath/gene_anno_counter
-            ulimit -s 15947772
+            ulimit -i >$densitypath/limts
+            for limt in `less $densitypath/limts`
+            do
+            ulimit -s $limt
             cd $densitypath
                if [ $numberofchromosom -le 8 ] ### the numbers of chromosomes less than or equal 8 to justfay the image
                   then  
@@ -449,7 +452,7 @@ fi
                   echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
                   grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
                   python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
-                  Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
+                  Rscript $RUN/density_width.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
                   cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
                   cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"
                fi
@@ -466,8 +469,9 @@ fi
                   python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
                   Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
                   cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
-                  cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"
-               fi
+                  cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"               
+                  fi
+            done
 
          ##exit
       fi
