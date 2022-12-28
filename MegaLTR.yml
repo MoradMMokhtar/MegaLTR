@@ -1,4 +1,4 @@
-name: base
+name: MegaLTR
 channels:
   - bioconda
   - biobuilds
