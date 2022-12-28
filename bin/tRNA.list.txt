@@ -1,3 +1,6 @@
+Source: https://bioinformatics.um6p.ma/PltRNAdb/index.php
+Citation: Mokhtar MM, EL Allali A (2022) PltRNAdb: Plant transfer RNA database. PLoS ONE 17(5): e0268904. https://doi.org/10.1371/journal.pone.0268904
+
 Abrus_precatorius_trna.fa
 Acer_yangbiense_trna.fa
 Actinidia_rufa_trna.fa
