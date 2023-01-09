@@ -28,18 +28,31 @@ conda activate MegaLTR
   fastaname=$(basename $fastafile)
   find  $dirname -name "$fastaname.harvest" -type f -size -570c -delete 
   find  $dirname -name "$fastaname.harvest.gff3" -type f -size -1c -delete 
+  if [[ ! -e $fasta/$procces_id.all.harvest ]]; then
+   
+    touch $fasta/$procces_id.all.harvest
+    fi
   
-  sed -i '1,12d' $fastafile.harvest 
     if [ -f "$fastafile.harvest.gff3" ]; then
-    cat $fastafile.harvest.gff3 >> $fasta/${process_id}.fna.harvest.combine.gff3
+    	cat $fastafile.harvest.gff3 >> $fasta/${process_id}.fna.harvest.combine.gff3
     fi
 
-    name=$(basename $fastafile ".fna")
-    sed -i 's/  / /g' $fasta/$name.fna.harvest
-    sed -i -r 's/(\s+)?\S+//11' $fasta/$name.fna.harvest
-    awk -F "\t" -v chr=$name '{print $0" "'chr'}' $fasta/$name.fna.harvest >>$fasta/$procces_id.all.harvest
- 
-    sed -i "s/$name/$ID_chromo $NC_chromo/g" $fasta/$procces_id.all.harvest
+    if [ -f "$fastafile.harvest" ]; then
+       
+	    sed -i '1,12d' $fastafile.harvest 
+	    name=$(basename $fastafile ".fna")
+	    sed -i 's/  / /g' $fasta/$name.fna.harvest
+	    sed -i -r 's/(\s+)?\S+//11' $fasta/$name.fna.harvest
+	    awk -F "\t" -v chr=$name '{print $0" "'chr'}' $fasta/$name.fna.harvest >>$fasta/$NC_chromo.all.harvest
+     
+     fi
+    if [ -f "$fasta/$NC_chromo.all.harvest" ]
+     then
+        #echo $ID_chromo $NC_chromo 
+      	sed  "s/$name/$ID_chromo $NC_chromo/g" $fasta/$NC_chromo.all.harvest >> $fasta/$procces_id.all.harvest 2>/dev/null
+
+      fi
+
     $LTRFINDER $fastafile -w 2 -C -D $maxdisltr -d $mindisltr -L $maxlenltr -l $minlenltr -p $matchpairs -M $similarFinder -s $trna >$fastafile.finder
     find  $dirname -name  "$fastaname.finder"  -type f -size -398c -delete ##delet all files .finder less than 398 bytes
     if [ -f "$fastafile.finder" ]; then
@@ -50,4 +63,11 @@ conda activate MegaLTR
         sed  '1,12d' $fastafile.finder.scn >>$fasta/$procces_id.all.finder.scn
         cat $fastafile.finder >> $fasta/all.fna.finder
     fi
- rm $fastafile
+ rm $fastafile $fastafile.finder $fastafile.finder.scn  $fastafile.des $fastafile.suf $fastafile.harvest  2>/dev/null
+ rm $fastafile.harvest.gff3 $fastafile.llv $fastafile.lcp $fastafile.prj $fastafile.sds $fastafile.esq  2>/dev/null
+ rm $fastafile.md5 $fasta/$NC_chromo.all.harvest 2>/dev/null
+
+
+
+
+ 
