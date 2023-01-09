@@ -4,7 +4,9 @@ use strict;
 #convert LTR_FINDER -w 2 format to LTRharvest format
 #Shujun Ou (shujun.ou.1@gmail.com) 11/13/2019
 #Usage: perl this_script.pl LTR_FINDER.w2.scn > LTRharvest.scn
-
+my $searchfile = $ARGV[0];
+my $seq_id = $ARGV[1];
+open (PFILE,"<$searchfile");
 my $head ="# LTR_FINDER
 # predictions are reported in the following way
 # s(ret) e(ret) l(ret) s(lLTR) e(lLTR) l(lLTR) s(rLTR) e(rLTR) l(rLTR) sim(LTRs) seq-nr chr
@@ -21,9 +23,9 @@ my $head ="# LTR_FINDER
 
 print $head;
 
-my $seq_id=-1;
-while (<>){
-	$seq_id++ if /^>/;
+
+while (<PFILE>) {
+	#$seq_id++ if /^>/;
 	next unless /^\[/;
 	s/\[\s+/\[/g;
 	my ($from, $to, $chr, $LTR_len, $lLTR_len, $rLTR_len, $lLTR_end, $rLTR_str, $similarity, $TSD, $motif, $direction, $loc, $len);
@@ -37,4 +39,4 @@ while (<>){
 	$from=$to=$LTR_len=$lLTR_len=$rLTR_len=$lLTR_end=$rLTR_str=$similarity=$TSD=$motif=$direction=$TSD=$motif=$loc=$len="NA";
 	}
 
-
+close PFILE;

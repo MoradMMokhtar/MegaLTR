@@ -1,4 +1,5 @@
 #!/bin/bash
+##Last update 09-01-2023 by Morad Mokhtar
 if [ $# -eq 0 ]
    then
       echo "Parameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis"
@@ -32,7 +33,7 @@ TEsortereval=0.001
 TEsorterrule=80-80-80
 TEsorterhmm=rexdb
 RateOfEvolution=0.000000015
-up=500
+up=5000
 down=5000
 density1=1000000
 numberofchromosom=9
@@ -209,27 +210,27 @@ if ([ $Analysistype -eq 3 ] && [[ $gffpath =~ \.gz$ ]]); ### mode 3
 fi
 if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
    then
-      ## {  ############## copy and split fasta #############
 : <<'END'
-END
-
+END   
+      ## {  ############## copy and split fasta #############
             cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file 
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/\t.*//g' $userpath/$trna  ### remove unnecessary details from tRNA sequence headers
-            cd $FASTA
             now2="$(date)"
-            echo
-            printf "\n\t$now2 \tLTR_FINDER Started %s\n"
-            grep ">" $userpath/$process_id.fna >$FASTA/chr.ids
-            sed -i 's/>//g' $FASTA/chr.ids
-            faidx --split-files $userpath/$process_id.fna
+            printf "\n\t$now2 \tLTR_FINDER & LTR_HARVEST Started %s\n"
       ## }
-      ## #{    ################## LTR_Finder ########### 
-            python3 $RUN/LTR_FINDER_threads.py $FASTA $threads $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $trna $LAI $FASTA $FASTA/chr.ids > /dev/null 2>/dev/null
-            perl $RUN/convert_ltr_finder2.pl $FASTA/all.fna.finder > $FASTA/all.finder.scn
-            sed -i -r 's/(\s+)?\S+//11' $FASTA/all.finder.scn
-            sed '1,12d' $FASTA/all.finder.scn > $FASTA/all.finder.scn2
-            cp $FASTA/all.finder.scn $Collected_Files
+      ## #{    ################## LTR_Finder & LTR_HARVEST ########### updated 08-01-2023
+            python3 $RUN/LTR_FINDER_threads.py $userpath/$process_id.fna $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $tRNAdb/$trna $RUN $FASTA $LTRHARVEST $LAI $similar $process_id $threads
+            sed -i -e "1 { r  $FASTA/all.finder.scn.header" -e "N; }" $FASTA/$process_id.all.finder.scn
+            cp $FASTA/$process_id.all.finder.scn $Collected_Files
+
+            cat $FASTA/$process_id.all.harvest $FASTA/$process_id.all.finder.scn >$FASTA/$process_id.all.harvest.finder.combine99
+            printf "# args=-index $FASTA/$process_id.fna -maxdistltr $maxdisltr -mindistltr $mindisltr -maxlenltr $maxlenltr -minlenltr $minlenltr -similar $similar -seqids yes -gff3 $FASTA/$process_id.fna.harvest.gff3\n# predictions are reported in the following way\n# s(ret) e(ret) l(ret) s(lLTR) e(lLTR) l(lLTR) s(rLTR) e(rLTR) l(rLTR) sim(LTRs) seq-nr \n# where:\n# s = starting position\n# e = ending position\n# l = length\n# ret = LTR-retrotransposon\n# lLTR = left LTR\n# rLTR = right LTR\n# sim = similarity\n# seq-nr = sequence number\n" >$FASTA/$process_id.header
+            cat $FASTA/$process_id.header $FASTA/$process_id.all.harvest.finder.combine99 >$FASTA/all.harvest.finder.combine
+
+            cp $FASTA/all.harvest.finder.combine $LAI
+            cp $FASTA/$process_id.all.harvest $Collected_Files
+            #######################
             for i in $FASTA/*.fna.finder
             do
                name=$(basename $i ".fna.finder")
@@ -241,46 +242,12 @@ END
             echo "index	SeqID	Location	LTR len	Inserted element len	TSR	PBS	PPT	RT	IN (core)	IN (c-term)	RH	Strand	Score	Sharpness	Similarity" >$FINDER/$process_id.fna.LTR_finder.tsv
             awk 'NF > 0' $FINDER/$process_id.fna.LTR_finder.1 >>$FINDER/$process_id.fna.LTR_finder.tsv
             cut -f2- $FINDER/$process_id.fna.LTR_finder.tsv >$FINDER/$process_id.fna.LTR_finder.tsv2
-            sed -E 's/_sub\S+\t/\t/g' $FINDER/$process_id.fna.LTR_finder.tsv2 >$FINDER/$process_id.fna.LTR_finder.tsv
-            now3="$(date)"
-            echo
-            printf "\t$now3 \tLTR_FINDER done %s\n"
-      ## #}
-#   # # {  ################ Run LTR_HARVEST #############
-            now4="$(date)"
-            echo
-            printf "\t$now4 \tLTR_HARVEST Started %s\n"
-		      for fst in  $FASTA/*.fna 
-		      do
-   			   gt suffixerator -db $fst -indexname $fst -tis -suf -lcp -des -ssp -sds -dna
-		      done
-		      python3 $RUN/LTR_HARVEST_threads.py $FASTA $threads $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similar $LTRHARVEST > /dev/null 2>/dev/null
-            for i in $FASTA/*.harvest
-            do
-               name=$(basename $i ".fna.harvest")
-               sed -i 's/  / /g' $FASTA/$name.fna.harvest
-               sed -i -r 's/(\s+)?\S+//11' $FASTA/$name.fna.harvest
-               awk -F "\t" -v chr=$name '{print $0" "'chr'}' $i >$i.2
-               cat $i.2 >>$FASTA/all.harvest.3
-            done
-            printf "# args=-index $FASTA/$process_id.fna -maxdistltr $maxdisltr -mindistltr $mindisltr -maxlenltr $maxlenltr -minlenltr $minlenltr -similar $similar -seqids yes -gff3 $FASTA/$process_id.fna.harvest.gff3\n# predictions are reported in the following way\n# s(ret) e(ret) l(ret) s(lLTR) e(lLTR) l(lLTR) s(rLTR) e(rLTR) l(rLTR) sim(LTRs) seq-nr \n# where:\n# s = starting position\n# e = ending position\n# l = length\n# ret = LTR-retrotransposon\n# lLTR = left LTR\n# rLTR = right LTR\n# sim = similarity\n# seq-nr = sequence number\n" >$FASTA/all.harvest
-            cat $FASTA/*.harvest.3 >>$FASTA/all.harvest
-            cat $FASTA/all.harvest $FASTA/all.finder.scn >$FASTA/all.harvest.finder.combine
-            awk -F " " '{print $11}' $FASTA/all.harvest.3 > $FASTA/ids.list
-            awk -F " " '{print $11}' $FASTA/all.finder.scn2 >> $FASTA/ids.list
-            awk '!a[$0]++' $FASTA/ids.list >$FASTA/ids.uniq  
-            awk '{print $0 "\t" NR-1}' $FASTA/ids.uniq >$FASTA/ids.uniq_with_numbers
-            while read a b
-            do
-               sed -i "s/$a/$b $a/g" $FASTA/all.harvest.finder.combine
-            done < $FASTA/ids.uniq_with_numbers
-            cp $FASTA/all.harvest.finder.combine $LAI
-            cp $FASTA/all.harvest $Collected_Files
+            sed -E 's/_sub\S+\t/\t/g' $FINDER/$process_id.fna.LTR_finder.tsv2 >$Collected_Files/$process_id.fna.LTR_finder.tsv
             cat $FASTA/*.harvest.gff3 >$FASTA/$process_id.fna.harvest.combine.gff3
             cp $FASTA/$process_id.fna.harvest.combine.gff3 $Collected_Files
             now5="$(date)"
             echo
-            printf "\t$now5 \tLTR_HARVEST Done %s\n"
+            printf "\t$now5 \tLTR_FINDER & LTR_HARVEST Done %s\n"   
 #   # # }
 #  # # {     #######LTR_retriever ##########
 
@@ -317,7 +284,7 @@ END
       echo
       printf "\t$now12 \tFiltering TEsorter results Started %s\n"
       awk -F '\t' '$2 == "LTR"' $TEsorter/"$process_id"_complete.fas.$TEsorterhmm.cls.tsv >$Others/$process_id.LTR.tsv  ##### search inside a specific column
-      awk -F '\t' '$2 != "LTR"' $TEsorter/"$process_id"_complete.fas.$TEsorterhmm.cls.tsv >$Others/$process_id.others.tsv  ##### search inside a specific column
+      awk -F '\t' '$2 != "LTR"' $TEsorter/"$process_id"_complete.fas.$TEsorterhmm.cls.tsv >$Others/$process_id.others.tsv  ##### search inside a specific column remove any other elements (like nested, LINE, ... any thing eles LTR)
       perl $RUN/print.pl $ltrdigest/"$process_id"_tabout.csv >$Others/$process_id.tabout.tsv ###### $Others/$"$process_id".tabout.tsv header ########## element	id element start	element end	element length	sequence	lLTR start	lLTR end	lLTR length	rLTR start	rLTR end	rLTR length	lTSD start	lTSD end	lTSD motif	rTSD start	rTSD end	rTSD motif	PPT start	PPT end	PPT motif	PPT strand	PPT offset	PBS start	PBS end	PBS strand	tRNA	tRNA motif	PBS offset	tRNA offset	PBS/tRNA edist
       now13="$(date)"
       echo
@@ -334,6 +301,7 @@ END
       python3 $RUN/LTR_Seq_threads.py $userpath/$process_id.fna  $LTRFiles $Collected_Files $threads $RUN/extractseq-id-start-end.pl
       cp $ltrdigest/"$process_id"_pbs.fas $Collected_Files/$process_id.PBS.Sequence.fa
       cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa      
+      sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tNCBI ACC\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains' $Collected_Files/LTR_Table_TEsorter_Digest.tsv
   # # }   
   # # {
 fi
@@ -355,6 +323,7 @@ fi
                done
             perl $RUN/TEsorterandtable_time.pl  $Others/LTR_Table_TEsorter_Digest.tsv $Others/$process_id.time.txt >$Others/$process_id.Digest_TEsorter_Time.tsv  ############# $Others/$process_id.Digest_TEsorter_Time (header) org_name	acc	element_start	element_end	element_length			strand	lTSD_start	lTSD_end	lLTR_start	lLTR_end	rLTR_start	rLTR_end	rTSD_start	rTSD_end	EDTA_infoo	PPT start	PPT end	PPT motif	PPT offset	PBS start	PBS end	tRNA	tRNA motif	PBS offset	tRNA offset	PBS/tRNA	edist Order	Superfamily	Clade	Complete	Strand	Domains	LTRNAME	K_Kimura	K_Ksd	K_TajimaNei	K_TNsd	timeK	timeKsd	numComparedSites	transitions	numComparedSites	transversions	numComparedSites	timeTN	transitions_numComparedSites	transversions_numComparedSites
             cp $Others/$process_id.Digest_TEsorter_Time.tsv $Collected_Files ### LTR_retriever, LTRdigest, TEsorter, and insertion time results in one file
+            sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tNCBI ACC\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains\tK_Kimura\tK_Ksd\tK_TajimaNei\tK_TNsd\ttimeK\ttimeKsd\tnumComparedSites\ttransitions\tnumComparedSites\ttransversions\tnumComparedSites\ttimeTN\ttransitions_numComparedSites\ttransversions_numComparedSites' $Collected_Files/$process_id.Digest_TEsorter_Time.tsv
             ###### preparing the files for R plots #
             now15="$(date)"
             echo
@@ -390,6 +359,7 @@ fi
             perl $RUN/No.pl $inside_genes/LTR_Table_Digest_TEsorter_Time_nongene1 >$inside_genes/LTR_Table_Digest_TEsorter_Time_nongene  ## determine which LTR-RT located outside the gene start and end
             cat $inside_genes/$process_id.LTR_inside_genes.table $inside_genes/LTR_Table_Digest_TEsorter_Time_nongene >$inside_genes/LTR_Table_Digest_TEsorter_Time_nongene_and_gene.tsv ## combine the LTR-RT located insid and outside the gene start and end in one file
             cp $inside_genes/LTR_Table_Digest_TEsorter_Time_nongene_and_gene.tsv $Collected_Files
+            sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tNCBI ACC\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains\tK_Kimura\tK_Ksd\tK_TajimaNei\tK_TNsd\ttimeK\ttimeKsd\tnumComparedSites\ttransitions\tnumComparedSites\ttransversions\tnumComparedSites\ttimeTN\ttransitions_numComparedSites\ttransversions_numComparedSites\tinside gene status\tgene/pseudogene\tGene start\tGene end\tstrand\tgene annotation' $Collected_Files/LTR_Table_Digest_TEsorter_Time_nongene_and_gene.tsv
             now18="$(date)"
             echo
             printf "\t$now18 \tLTR-RT-gene chimeras done %s\n"
@@ -406,7 +376,8 @@ fi
             perl $RUN/get-TE-near-gene-minuse-1k.pl $near_genes/$process_id.Digest_TEsorter_Time5- $near_genes/$process_id.gene_pseudogene.gff2 $up $down >$near_genes/down_genes-
             perl $RUN/get-TE-near-gene-pluse+1k.pl $near_genes/$process_id.Digest_TEsorter_Time5- $near_genes/$process_id.gene_pseudogene.gff2 $up $down >$near_genes/up_genes-
             cat $near_genes/up_genes+ $near_genes/down_genes+ $near_genes/down_genes- $near_genes/up_genes- >$near_genes/genes_up_and_down_LTR.tsv
-            cp $near_genes/genes_up_and_down_LTR.tsv $Collected_Files
+            cp $near_genes/genes_up_and_down_LTR.tsv  $Collected_Files/$process_id.genes_up_and_down_LTR.tsv
+            sed  -i '1i LTR-RT id\tUp/Downstream\tPseudomolecules/scaffolds\tNCBI ACC\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains\tK_Kimura\tK_Ksd\tK_TajimaNei\tK_TNsd\ttimeK\ttimeKsd\tnumComparedSites\ttransitions\tnumComparedSites\ttransversions\tnumComparedSites\ttimeTN\ttransitions_numComparedSites\ttransversions_numComparedSites\tgene/pseudogene\tGene start\tGene end\tgene length\tstrand\tgene annotation' $Collected_Files/$process_id.genes_up_and_down_LTR.tsv
             now20="$(date)"
             echo
             printf "\t$now20 \tLTR-RT near genes done %s\n"
@@ -474,7 +445,7 @@ fi
       fi
   # #}
       rm $userpath/$process_id.fna
-      rm $FASTA/*.fna
+      rm -rf $FASTA
       rm $userpath/$process_id.gff
       now21="$(date)"
       echo
