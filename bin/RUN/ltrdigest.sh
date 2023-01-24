@@ -8,7 +8,8 @@ ltrdigest="$5"
    cd $userpath/LTRdigest
    ln -s $userpath/$process_id.fna $userpath/LTRdigest/$process_id.fna
    gt suffixerator -db $process_id.fna -indexname $process_id.fna -tis -suf -lcp -des -ssp -sds -dna
-   cp $LAI/$process_id.fna.pass.list.gff3 $ltrdigest/$process_id.fna.pass.list.gff3
+   cp $LAI/$process_id.fna.pass.list.gff3 $ltrdigest/$process_id.fna.pass.list.gff3 > /dev/null 2>/dev/null ##GFF3 format for intact LTR-RTs
+   cp $LAI/$process_id.fna.mod.pass.list.gff3 $ltrdigest/$process_id.fna.pass.list.gff3 > /dev/null 2>/dev/null ##GFF3 format for intact LTR-RTs
    sed -E -i 's/\;Classification=\S+//g' $ltrdigest/$process_id.fna.pass.list.gff3
    grep -i "##sequence-region" $ltrdigest/$process_id.fna.pass.list.gff3 >$ltrdigest/sequence-region.ids
    sed -E -i 's/\s+/\t/g' $ltrdigest/sequence-region.ids
