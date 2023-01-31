@@ -6,10 +6,16 @@ LAI="$4"
 ltrdigest="$5"
 ############# use gt to preper the data
    cd $userpath/LTRdigest
-   ln -s $userpath/$process_id.fna $userpath/LTRdigest/$process_id.fna
+   ln -s $userpath/$process_id.fna $userpath/LTRdigest/$process_id.fna > /dev/null 2>/dev/null
    gt suffixerator -db $process_id.fna -indexname $process_id.fna -tis -suf -lcp -des -ssp -sds -dna
-   cp $LAI/$process_id.fna.pass.list.gff3 $ltrdigest/$process_id.fna.pass.list.gff3 > /dev/null 2>/dev/null ##GFF3 format for intact LTR-RTs
-   cp $LAI/$process_id.fna.mod.pass.list.gff3 $ltrdigest/$process_id.fna.pass.list.gff3 > /dev/null 2>/dev/null ##GFF3 format for intact LTR-RTs
+   
+   if [ -f "$LAI/$process_id.fna.pass.list.gff3" ]; then 
+   cp $LAI/$process_id.fna.pass.list.gff3 $ltrdigest ##GFF3 format for intact LTR-RTs
+   fi
+   if [ -f "$LAI/$process_id.fna.mod.pass.list.gff3" ]; then 
+   cp $LAI/$process_id.fna.mod.pass.list.gff3 $ltrdigest/$process_id.fna.pass.list.gff3 ##GFF3 format for intact LTR-RTs
+   fi
+   
    sed -E -i 's/\;Classification=\S+//g' $ltrdigest/$process_id.fna.pass.list.gff3
    grep -i "##sequence-region" $ltrdigest/$process_id.fna.pass.list.gff3 >$ltrdigest/sequence-region.ids
    sed -E -i 's/\s+/\t/g' $ltrdigest/sequence-region.ids

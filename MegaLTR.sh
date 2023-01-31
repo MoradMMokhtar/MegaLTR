@@ -1,14 +1,13 @@
 #!/bin/bash
-##Last update 09-01-2023 by Morad Mokhtar
-if [ $# -eq 0 ]
-   then
-      echo "Parameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis"
-      exit
-fi
+##Last update 31-01-2023 by Morad Mokhtar
+   if [ $# -eq 0 ]
+      then
+         echo "Parameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis"
+         exit
+   fi
 tRNAdb=$(pwd)/bin/tRNA
-LTR_FINDER=$(pwd)/bin/LTR_FINDER.x86_64-1.0.7/ltr_finder
-chmod 775 $LTR_FINDER #Give execulting permissions for ltr_finder
-LTR_FINDER_convert=$(pwd)/bin/RUN/convert_ltr_finder2.pl
+LTR_FINDER=$(pwd)/bin/LTR_FINDER_parallel/LTR_FINDER_parallel
+LTR_HARVEST=$(pwd)/bin/LTR_HARVEST_parallel/LTR_HARVEST_parallel
 LTRretriever=$(pwd)/bin/LTR_retriever/LTR_retriever
 chmod 775 $LTRretriever #Give execulting permissions for LTRretriever
 RUN=$(pwd)/bin/RUN
@@ -164,147 +163,154 @@ printf "\t$now \t Start time %s\n"  ### print current date
 echo
 printf "\tParameters: -A $Analysistype -F $Fastafilepath -G $gffpath -T $trna -P $outfileprefix -l $minlenltr -L $maxlenltr -d $mindisltr -D $maxdisltr -S $similar -M $matchpairs -B $TEsorterdb -C $TEsortercov -V $TEsortereval -Q $TEsorterrule -E $TEsorterhmm -R $RateOfEvolution -U $up -X $down -W $density1 -N $numberofchromosom -t $threads\n\n"
 conda activate MegaLTR
-if [ $check -ne 2 ]
-   then
-      printf "\tParameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis\n"
-      exit
-fi
+   if [ $check -ne 2 ]
+      then
+         printf "\tParameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis\n"
+         exit
+      fi
       conda activate MegaLTR
-if [[ $Fastafilepath =~ \.gz$ ]]; then
-   cd $userpath
-      echo
-      printf "\tCheck the FASTA File format.\n"
-      gunzip -c "$Fastafilepath" >$userpath/$process_id.fna
-      perl $RUN/checkfasta.pl $userpath/$process_id.fna ### Check the FASTA File format
-   elif [[ $Fastafilepath =~ \.zip$ ]]; then
-      echo
-      printf "\tCheck the FASTA File format.\n"
-      gunzip -c "$Fastafilepath" >$userpath/$process_id.fna
-      perl $RUN/checkfasta.pl $userpath/$process_id.fna ### Check the FASTA File format
-   elif ([ $(stat -c%s "$Fastafilepath") -gt 500 ]); then
-      printf "\tCheck the FASTA File format.\n"
-      perl $RUN/checkfasta.pl $Fastafilepath ### Check the FASTA File format
-      cp $Fastafilepath $userpath/$process_id.fna #### copy fasta file tRNA files
-   else
-      printf "\n\tCheck the FASTA File format.\n"
-      printf "\n\tPlease use -F to provide a valid FASTA file [-F FASTA_file_path].\n"
+   if [[ $Fastafilepath =~ \.gz$ ]]; then
+         cd $userpath
+         echo
+         printf "\tCheck the FASTA File format.\n"
+         gunzip -c "$Fastafilepath" >$userpath/$process_id.fna
+         perl $RUN/checkfasta.pl $userpath/$process_id.fna ### Check the FASTA File format
+      elif [[ $Fastafilepath =~ \.zip$ ]]; then
+         echo
+         printf "\tCheck the FASTA File format.\n"
+         gunzip -c "$Fastafilepath" >$userpath/$process_id.fna
+         perl $RUN/checkfasta.pl $userpath/$process_id.fna ### Check the FASTA File format
+      elif ([ $(stat -c%s "$Fastafilepath") -gt 500 ]); then
+         printf "\tCheck the FASTA File format.\n"
+         perl $RUN/checkfasta.pl $Fastafilepath ### Check the FASTA File format
+         cp $Fastafilepath $userpath/$process_id.fna #### copy fasta file tRNA files
+      else
+         printf "\n\tCheck the FASTA File format.\n"
+         printf "\n\tPlease use -F to provide a valid FASTA file [-F FASTA_file_path].\n"
+         exit
+   fi
+
+   if ([ $Analysistype -eq 3 ] && [[ $gffpath == "" ]]); then
+         printf "\n\tPlease use -G to provide a valid GFF file [-G GFF_file_path].\n"
+         exit
+   fi
+   if ([[ $Analysistype -eq 3 ]] && [ $(stat -c%s "$gffpath") -lt 500 ]); then
+         printf "\n\tPlease use -G to provide a valid GFF file [-G GFF_file_path].\n"
       exit
-fi
+   fi
 
-if ([ $Analysistype -eq 3 ] && [[ $gffpath == "" ]]); then
-      printf "\n\tPlease use -G to provide a valid GFF file [-G GFF_file_path].\n"
-   exit
-fi
-if ([[ $Analysistype -eq 3 ]] && [ $(stat -c%s "$gffpath") -lt 500 ]); then
-      printf "\n\tPlease use -G to provide a valid GFF file [-G GFF_file_path].\n"
-   exit
-fi
-
-if ([ $Analysistype -eq 3 ] && [[ $gffpath =~ \.gz$ ]]); ### mode 3
-   then
-      gunzip -c "$gffpath" >$userpath/$process_id.gff
-   elif ([ $Analysistype -eq 3 ] && [[ $gffpath =~ \.zip$ ]]); then
-      gunzip -c "$gffpath" >$userpath/$process_id.gff
-   elif ([[ $Analysistype -eq 3 ]] && [ $(stat -c%s "$gffpath") -gt 500 ]); then
-      cp $gffpath $userpath/$process_id.gff #### copy gff file
-fi
-if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
-   then
-: <<'END'
-END   
-      ## {  ############## copy and split fasta #############
+   if ([ $Analysistype -eq 3 ] && [[ $gffpath =~ \.gz$ ]]); ### mode 3
+      then
+            gunzip -c "$gffpath" >$userpath/$process_id.gff
+         elif ([ $Analysistype -eq 3 ] && [[ $gffpath =~ \.zip$ ]]); then
+            gunzip -c "$gffpath" >$userpath/$process_id.gff
+         elif ([[ $Analysistype -eq 3 ]] && [ $(stat -c%s "$gffpath") -gt 500 ]); then
+            cp $gffpath $userpath/$process_id.gff #### copy gff file
+      fi
+   if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
+      then
+         # : <<'END' END
+         # printf "\t$now \t Start time %s\n"  ### print current date
+         # echo
+            ############## copy and split fasta #############
             cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file 
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/\t.*//g' $userpath/$trna  ### remove unnecessary details from tRNA sequence headers
             now2="$(date)"
-            printf "\n\t$now2 \tLTR_FINDER & LTR_HARVEST Started %s\n"
-      ## }
-      ## #{    ################## LTR_Finder & LTR_HARVEST ########### updated 08-01-2023
-            python3 $RUN/LTR_FINDER_threads.py $userpath/$process_id.fna $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $tRNAdb/$trna $RUN $FASTA $LTRHARVEST $LAI $similar $process_id $threads
-            sed -i -e "1 { r  $FASTA/all.finder.scn.header" -e "N; }" $FASTA/$process_id.all.finder.scn
-            cp $FASTA/$process_id.all.finder.scn $Collected_Files
+            printf "\n\t$now2 \tLTR_FINDER Started %s\n" 
+            ################## LTR_Finder & LTR_HARVEST ########### updated 31-01-2023
+         cd $FASTA
+         perl $LTR_FINDER -seq $userpath/$process_id.fna  -threads $threads -harvest_out -size 1000000 -time 500  $tRNAdb/$trna $trna $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder  $FASTA  $similar $process_id > /dev/null 2>/dev/null
+         now51="$(date)"
+         printf "\n\t$now51 \tLTR_HARVEST Started %s\n"
 
-            cat $FASTA/$process_id.all.harvest $FASTA/$process_id.all.finder.scn >$FASTA/$process_id.all.harvest.finder.combine99
-            printf "# args=-index $FASTA/$process_id.fna -maxdistltr $maxdisltr -mindistltr $mindisltr -maxlenltr $maxlenltr -minlenltr $minlenltr -similar $similar -seqids yes -gff3 $FASTA/$process_id.fna.harvest.gff3\n# predictions are reported in the following way\n# s(ret) e(ret) l(ret) s(lLTR) e(lLTR) l(lLTR) s(rLTR) e(rLTR) l(rLTR) sim(LTRs) seq-nr \n# where:\n# s = starting position\n# e = ending position\n# l = length\n# ret = LTR-retrotransposon\n# lLTR = left LTR\n# rLTR = right LTR\n# sim = similarity\n# seq-nr = sequence number\n" >$FASTA/$process_id.header
-            cat $FASTA/$process_id.header $FASTA/$process_id.all.harvest.finder.combine99 >$FASTA/all.harvest.finder.combine
-
-            cp $FASTA/all.harvest.finder.combine $LAI
-            cp $FASTA/$process_id.all.harvest $Collected_Files
-            #######################
-            for i in $FASTA/*.fna.finder
+         conda config --show envs_dirs >$densitypath/condapath
+         sed -i '1d' $densitypath/condapath
+         sed -i 's/  - //g' $densitypath/condapath
+            for condapath in `less $densitypath/condapath`
             do
-               name=$(basename $i ".fna.finder")
-               sed -i '1,7d' $FASTA/$name.fna.finder
-               sed -i '$ d' $FASTA/$name.fna.finder
-               sed -i 's/No LTR Retrotransposons Found//g' $FASTA/$name.fna.finder
-               cat $FASTA/$name.fna.finder >>$FINDER/$process_id.fna.LTR_finder.1
+               perl $LTR_HARVEST -seq $userpath/$process_id.fna -threads $threads -size 1000000 -time 500 -gt $condapath/MegaLTR/bin/gt $minlenltr $maxlenltr $similar > /dev/null 2>/dev/null
             done
-            echo "index	SeqID	Location	LTR len	Inserted element len	TSR	PBS	PPT	RT	IN (core)	IN (c-term)	RH	Strand	Score	Sharpness	Similarity" >$FINDER/$process_id.fna.LTR_finder.tsv
-            awk 'NF > 0' $FINDER/$process_id.fna.LTR_finder.1 >>$FINDER/$process_id.fna.LTR_finder.tsv
-            cut -f2- $FINDER/$process_id.fna.LTR_finder.tsv >$FINDER/$process_id.fna.LTR_finder.tsv2
-            sed -E 's/_sub\S+\t/\t/g' $FINDER/$process_id.fna.LTR_finder.tsv2 >$Collected_Files/$process_id.fna.LTR_finder.tsv
-            cat $FASTA/*.harvest.gff3 >$FASTA/$process_id.fna.harvest.combine.gff3
-            cp $FASTA/$process_id.fna.harvest.combine.gff3 $Collected_Files
-            now5="$(date)"
-            echo
-            printf "\t$now5 \tLTR_FINDER & LTR_HARVEST Done %s\n"   
-#   # # }
-#  # # {     #######LTR_retriever ##########
+         cat $FASTA/$process_id.fna.harvest.combine.scn  $FASTA/$process_id.fna.finder.combine.scn >$FASTA/$process_id.all.harvest.finder.combine
 
-         cd $LAI
-         now6="$(date)"
+         now5="$(date)"
          echo
-         printf "\t$now6 \tLTR_retriever Started %s\n"
-         bash $RUN/newLTR_retriever.sh  $userpath/$process_id.fna $userpath $LAI $minlenltr $process_id $Collected_Files $threads $LTRretriever > /dev/null 2>/dev/null
+         printf "\t$now5 \tLTR_FINDER & LTR_HARVEST Done %s\n"   
+         now50="$(date)"
+         echo
+         printf "\t$now50 \tLTR_retriever Started %s\n" 
+         
+            #######LTR_retriever ##########
+         cd $LAI 
+         $LTRretriever -genome $userpath/$process_id.fna -inharvest $FASTA/$process_id.all.harvest.finder.combine -threads $threads -minlen $minlenltr >>$userpath/screen.txt
+         if [ -f "$LAI/$process_id.fna.pass.list" ]; then 
+            cp $LAI/$process_id.fna.pass.list $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.pass.list" ]; then 
+            cp $LAI/$process_id.fna.mod.pass.list $Collected_Files/$process_id.fna.pass.list
+         fi 
+         if [ -f "$LAI/$process_id.fna.nmtf.pass.list" ]; then 
+            cp $LAI/$process_id.fna.nmtf.pass.list $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.nmtf.pass.list" ]; then 
+            cp $LAI/$process_id.fna.mod.nmtf.pass.list $Collected_Files/$process_id.fna.nmtf.pass.list
+         fi
+         if [ -f "$LAI/$process_id.fna.pass.list.gff3" ]; then 
+            cp $LAI/$process_id.fna.pass.list.gff3 $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.pass.list.gff3" ]; then 
+            cp $LAI/$process_id.fna.mod.pass.list.gff3 $Collected_Files/$process_id.fna.pass.list.gff3
+         fi
+         if [ -f "$LAI/$process_id.fna.out" ]; then 
+            cp $LAI/$process_id.fna.out $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.out" ]; then 
+            cp $LAI/$process_id.fna.out $Collected_Files/$process_id.fna.out
+         fi
          now7="$(date)"
          echo
          printf "\t$now7 \tLTR_retriever Done %s\n"
-
-#   # # }
-  # # {     #######ltrdigest ###########
-      conda activate MegaLTR
-      now8="$(date)"
-      echo
-      printf "\t$now8 \tLTRdigest Started %s\n"
-      bash $RUN/ltrdigest.sh $process_id $userpath $trna $LAI $ltrdigest
-      now9="$(date)"
-      echo
-      printf "\t$now9 \tLTRdigest Done %s\n"
-  # # }
-  # # {     #######TEsorter ###########
-      now10="$(date)"
-      echo
-      printf "\t$now10 \tTEsorter Started %s\n"
-      cd $TEsorter
-      bash $RUN/TEsorter.sh $TEsorter $ltrdigest/"$process_id"_complete.fas $TEsorterdb $TEsortercov $TEsortereval $TEsorterrule $TEsorterhmm $RUN $process_id $Collected_Files $userpath $threads
-      now11="$(date)"
-      echo
-      printf "\t$now11 \tTEsorter Done %s\n"
-      now12="$(date)"
-      echo
-      printf "\t$now12 \tFiltering TEsorter results Started %s\n"
-      awk -F '\t' '$2 == "LTR"' $TEsorter/"$process_id"_complete.fas.$TEsorterhmm.cls.tsv >$Others/$process_id.LTR.tsv  ##### search inside a specific column
-      awk -F '\t' '$2 != "LTR"' $TEsorter/"$process_id"_complete.fas.$TEsorterhmm.cls.tsv >$Others/$process_id.others.tsv  ##### search inside a specific column remove any other elements (like nested, LINE, ... any thing eles LTR)
-      perl $RUN/print.pl $ltrdigest/"$process_id"_tabout.csv >$Others/$process_id.tabout.tsv ###### $Others/$"$process_id".tabout.tsv header ########## element	id element start	element end	element length	sequence	lLTR start	lLTR end	lLTR length	rLTR start	rLTR end	rLTR length	lTSD start	lTSD end	lTSD motif	rTSD start	rTSD end	rTSD motif	PPT start	PPT end	PPT motif	PPT strand	PPT offset	PBS start	PBS end	PBS strand	tRNA	tRNA motif	PBS offset	tRNA offset	PBS/tRNA edist
-      now13="$(date)"
-      echo
-      printf "\t$now13 \tMergeing of LTR_retriever, LTRdigest, and TEsorter results %s\n"
-      perl $RUN/TEsorter_Digest.pl  $Others/$process_id.tabout.tsv $Others/$process_id.LTR.tsv >$Others/2LTR_Table_TEsorter_Digest.tsv
-      python3 $RUN/classification_NEW_LTR_2.py $Others/2LTR_Table_TEsorter_Digest.tsv  $Others/new_LTR_Table_TEsorter_Digest.tsv
-      awk -F'\t' '{print $2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12"\t"$13"\t"$14"\t"$15"\t"$16"\t"$17"\t"$18"\t"$19"\t"$20"\t"$21"\t"$22"\t"$23"\t"$24"\t"$25"\t"$26"\t"$27"\t"$28"\t"$29"\t"$30"\t"$31"\t"$32"\t"$33"\t"$1"\t"$35"\t"$36"\t"$37"\t"$38}' $Others/new_LTR_Table_TEsorter_Digest.tsv > $Others/LTR_Table_TEsorter_Digest.tsv
-      cp $Others/LTR_Table_TEsorter_Digest.tsv $Collected_Files ### LTR_retriever, LTRdigest, and TEsorter results in one file 
-      awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.length.ids.forstat
-      python3 $RUN/super_familly_stat.py $Others/$process_id.length.ids.forstat $Collected_Files/$process_id.statistics.tsv ##LTR superfamily summary    
-      awk -F "\t" '{ print  $2"\t"$3"\t"$4"\t"$5"\t"$32"\t"$33"\t"$34 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.ids.extract_seq
-      cd $LTRFiles
-      split -n l/100 $Others/$process_id.ids.extract_seq
-      python3 $RUN/LTR_Seq_threads.py $userpath/$process_id.fna  $LTRFiles $Collected_Files $threads $RUN/extractseq-id-start-end.pl
-      cp $ltrdigest/"$process_id"_pbs.fas $Collected_Files/$process_id.PBS.Sequence.fa
-      cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa      
-      sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tNCBI ACC\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains' $Collected_Files/LTR_Table_TEsorter_Digest.tsv
-  # # }   
-  # # {
-fi
+         #######ltrdigest ###########
+         conda activate MegaLTR
+         now8="$(date)"
+         echo
+         printf "\t$now8 \tLTRdigest Started %s\n"
+         bash $RUN/ltrdigest.sh $process_id $userpath $trna $LAI $ltrdigest
+         now9="$(date)"
+         echo
+         printf "\t$now9 \tLTRdigest Done %s\n"
+         #######TEsorter ###########
+         now10="$(date)"
+         echo
+         printf "\t$now10 \tTEsorter Started %s\n"
+         cd $TEsorter
+         bash $RUN/TEsorter.sh $TEsorter $ltrdigest/"$process_id"_complete.fas $TEsorterdb $TEsortercov $TEsortereval $TEsorterrule $TEsorterhmm $RUN $process_id $Collected_Files $userpath $threads
+         now11="$(date)"
+         echo
+         printf "\t$now11 \tTEsorter Done %s\n"
+         now12="$(date)"
+         echo
+         printf "\t$now12 \tFiltering TEsorter results Started %s\n"
+         awk -F '\t' '$2 == "LTR"' $TEsorter/"$process_id"_complete.fas.$TEsorterhmm.cls.tsv >$Others/$process_id.LTR.tsv  ##### search inside a specific column
+         awk -F '\t' '$2 != "LTR"' $TEsorter/"$process_id"_complete.fas.$TEsorterhmm.cls.tsv >$Others/$process_id.others.tsv  ##### search inside a specific column remove any other elements (like nested, LINE, ... any thing eles LTR)
+         perl $RUN/print.pl $ltrdigest/"$process_id"_tabout.csv >$Others/$process_id.tabout.tsv ###### $Others/$"$process_id".tabout.tsv header ########## element	id element start	element end	element length	sequence	lLTR start	lLTR end	lLTR length	rLTR start	rLTR end	rLTR length	lTSD start	lTSD end	lTSD motif	rTSD start	rTSD end	rTSD motif	PPT start	PPT end	PPT motif	PPT strand	PPT offset	PBS start	PBS end	PBS strand	tRNA	tRNA motif	PBS offset	tRNA offset	PBS/tRNA edist
+         now13="$(date)"
+         echo
+         printf "\t$now13 \tMergeing of LTR_retriever, LTRdigest, and TEsorter results %s\n"
+         perl $RUN/TEsorter_Digest.pl  $Others/$process_id.tabout.tsv $Others/$process_id.LTR.tsv >$Others/2LTR_Table_TEsorter_Digest.tsv
+         python3 $RUN/classification_NEW_LTR_2.py $Others/2LTR_Table_TEsorter_Digest.tsv  $Others/new_LTR_Table_TEsorter_Digest.tsv
+         awk -F'\t' '{print $2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12"\t"$13"\t"$14"\t"$15"\t"$16"\t"$17"\t"$18"\t"$19"\t"$20"\t"$21"\t"$22"\t"$23"\t"$24"\t"$25"\t"$26"\t"$27"\t"$28"\t"$29"\t"$30"\t"$31"\t"$32"\t"$33"\t"$1"\t"$35"\t"$36"\t"$37"\t"$38}' $Others/new_LTR_Table_TEsorter_Digest.tsv > $Others/LTR_Table_TEsorter_Digest.tsv
+         cp $Others/LTR_Table_TEsorter_Digest.tsv $Collected_Files ### LTR_retriever, LTRdigest, and TEsorter results in one file 
+         awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.length.ids.forstat
+         python3 $RUN/super_familly_stat.py $Others/$process_id.length.ids.forstat $Collected_Files/$process_id.statistics.tsv ##LTR superfamily summary    
+         awk -F "\t" '{ print  $2"\t"$3"\t"$4"\t"$5"\t"$32"\t"$33"\t"$34 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.ids.extract_seq
+         cd $LTRFiles
+         split -n l/100 $Others/$process_id.ids.extract_seq
+         python3 $RUN/LTR_Seq_threads.py $userpath/$process_id.fna  $LTRFiles $Collected_Files $threads $RUN/extractseq-id-start-end.pl
+         cp $ltrdigest/"$process_id"_pbs.fas $Collected_Files/$process_id.PBS.Sequence.fa
+         cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa      
+         sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains' $Collected_Files/LTR_Table_TEsorter_Digest.tsv
+      fi
       if ([ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]) ### mode 2
          then
             ########LTR insertion time ###########
@@ -338,10 +344,8 @@ fi
             now16="$(date)"
             echo
             printf "\t$now16 \tLTR-RT insertion time plots done %s\n"
-         ##exit
-      fi
-  # # }
-  # # {   
+            ##exit
+         fi
 
       if [ $Analysistype -eq 3 ] ### mode 3      # #####  TE-gene chimeras #########
          then
@@ -407,46 +411,43 @@ fi
             ulimit -i >$densitypath/limts
             for limt in `less $densitypath/limts`
             do
-            ulimit -s $limt
-            cd $densitypath
+               ulimit -s $limt
+               cd $densitypath
                if [ $numberofchromosom -le 8 ] ### the numbers of chromosomes less than or equal 8 to justfay the image
                   then  
-                  sort  -k3,3nr $densitypath/"$process_id"_karyotype >$densitypath/"$process_id"_karyotype_sort
-                  echo "Chr	Start	End" >$densitypath/"$process_id"_karyotype_sort_head
-                  head -8 $densitypath/"$process_id"_karyotype_sort >>$densitypath/"$process_id"_karyotype_sort_head
-                  awk -F "\t" '{print $1}' $densitypath/"$process_id"_karyotype_sort_head >$densitypath/"$process_id"_karyotype_sort_head.ids
-                  echo "Chr	Start	End	Value" >$densitypath/gene_anno_counter_ok
-                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
-                  echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
-                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
-                  python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
-                  Rscript $RUN/density_width.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
-                  cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
-                  cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"
+                     sort  -k3,3nr $densitypath/"$process_id"_karyotype >$densitypath/"$process_id"_karyotype_sort
+                     echo "Chr	Start	End" >$densitypath/"$process_id"_karyotype_sort_head
+                     head -8 $densitypath/"$process_id"_karyotype_sort >>$densitypath/"$process_id"_karyotype_sort_head
+                     awk -F "\t" '{print $1}' $densitypath/"$process_id"_karyotype_sort_head >$densitypath/"$process_id"_karyotype_sort_head.ids
+                     echo "Chr	Start	End	Value" >$densitypath/gene_anno_counter_ok
+                     grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
+                     echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
+                     grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
+                     python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
+                     Rscript $RUN/density_width.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
+                     cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
+                     cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"
                fi
                if [ $numberofchromosom -ge 8 ] ### the numbers of chromosomes more than or equal 8 to justfay the image
                   then
-                  sort  -k3,3nr $densitypath/"$process_id"_karyotype >$densitypath/"$process_id"_karyotype_sort
-                  echo "Chr	Start	End" >$densitypath/"$process_id"_karyotype_sort_head
-                  head -20 $densitypath/"$process_id"_karyotype_sort >>$densitypath/"$process_id"_karyotype_sort_head
-                  awk -F "\t" '{print $1}' $densitypath/"$process_id"_karyotype_sort_head >$densitypath/"$process_id"_karyotype_sort_head.ids
-                  echo "Chr	Start	End	Value" >$densitypath/gene_anno_counter_ok
-                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
-                  echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
-                  grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
-                  python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
-                  Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
-                  cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
-                  cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"               
+                     sort  -k3,3nr $densitypath/"$process_id"_karyotype >$densitypath/"$process_id"_karyotype_sort
+                     echo "Chr	Start	End" >$densitypath/"$process_id"_karyotype_sort_head
+                     head -20 $densitypath/"$process_id"_karyotype_sort >>$densitypath/"$process_id"_karyotype_sort_head
+                     awk -F "\t" '{print $1}' $densitypath/"$process_id"_karyotype_sort_head >$densitypath/"$process_id"_karyotype_sort_head.ids
+                     echo "Chr	Start	End	Value" >$densitypath/gene_anno_counter_ok
+                     grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/gene_anno_counter >>$densitypath/gene_anno_counter_ok
+                     echo "Type	Shape	Chr	Start	End	color" >$densitypath/figure_distrbution5_ok
+                     grep -f $densitypath/"$process_id"_karyotype_sort_head.ids $densitypath/$process_id.figure.distrbution11 >>$densitypath/figure_distrbution5_ok
+                     python3 $RUN/figure_legend.py $densitypath/figure_distrbution5_ok $densitypath/gene_anno_counter_ok $densitypath/"$process_id"_karyotype_sort_head  $Collected_Files/"Map of Gene density and LTR-RTs distribution Figure.tsv"
+                     Rscript $RUN/density.r $densitypath/"$process_id"_karyotype_sort_head $densitypath/gene_anno_counter_ok $densitypath/figure_distrbution5_ok
+                     cp $densitypath/chromosome.svg $Collected_Files/"Gene density and LTR-RTs distribution.svg"
+                     cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"               
                   fi
             done
-
-         ##exit
-      fi
-  # #}
-      rm $userpath/$process_id.fna
-      rm -rf $FASTA
-      rm $userpath/$process_id.gff
-      now21="$(date)"
-      echo
-      printf "\t$now21 \tMegaLTR Done, The results saved in ($Collected_Files) %s\n"
+         fi
+         rm $userpath/$process_id.fna
+         rm -rf $FASTA
+         rm $userpath/$process_id.gff
+         now21="$(date)"
+         echo
+         printf "\t$now21 \tMegaLTR Done, The results saved in ($Collected_Files) %s\n"

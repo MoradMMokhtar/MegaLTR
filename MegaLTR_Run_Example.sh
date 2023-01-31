@@ -1,14 +1,13 @@
 #!/bin/bash
-##Last update 09-01-2023 by Morad Mokhtar
+##Last update 31-01-2023 by Morad Mokhtar
 if [ $# -eq 0 ]
    then
       echo "Parameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis"
       exit
 fi
 tRNAdb=$(pwd)/bin/tRNA
-LTR_FINDER=$(pwd)/bin/LTR_FINDER.x86_64-1.0.7/ltr_finder
-chmod 775 $LTR_FINDER #Give execulting permissions for ltr_finder
-LTR_FINDER_convert=$(pwd)/bin/RUN/convert_ltr_finder2.pl
+LTR_FINDER=$(pwd)/bin/LTR_FINDER_parallel/LTR_FINDER_parallel
+LTR_HARVEST=$(pwd)/bin/LTR_HARVEST_parallel/LTR_HARVEST_parallel
 LTRretriever=$(pwd)/bin/LTR_retriever/LTR_retriever
 chmod 775 $LTRretriever #Give execulting permissions for LTRretriever
 RUN=$(pwd)/bin/RUN
@@ -213,56 +212,68 @@ if ([ $Analysistype -eq 3 ] && [[ $gffpath =~ \.gz$ ]]); ### mode 3
 fi
 if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
    then
-      ## {  ############## copy and split fasta #############
+         # : <<'END' END
+         # printf "\t$now \t Start time %s\n"  ### print current date
+         # echo
+            ############## copy and split fasta #############
             cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file 
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/\t.*//g' $userpath/$trna  ### remove unnecessary details from tRNA sequence headers
             now2="$(date)"
-            printf "\n\t$now2 \tLTR_FINDER & LTR_HARVEST Started %s\n"
-      ## }
-      ## #{    ################## LTR_Finder & LTR_HARVEST ########### updated 08-01-2023
-            python3 $RUN/LTR_FINDER_threads.py $userpath/$process_id.fna $LTR_FINDER $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder $userpath $tRNAdb/$trna $RUN $FASTA $LTRHARVEST $LAI $similar $process_id $threads
-            sed -i -e "1 { r  $FASTA/all.finder.scn.header" -e "N; }" $FASTA/$process_id.all.finder.scn
-            cp $FASTA/$process_id.all.finder.scn $Collected_Files
+            printf "\n\t$now2 \tLTR_FINDER Started %s\n"
+            ################## LTR_Finder & LTR_HARVEST ########### updated 31-01-2023
+         cd $FASTA
+         perl $LTR_FINDER -seq $userpath/$process_id.fna  -threads $threads -harvest_out -size 1000000 -time 500  $tRNAdb/$trna $trna $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder  $FASTA  $similar $process_id > /dev/null 2>/dev/null
+         now51="$(date)"
+         printf "\n\t$now51 \tLTR_HARVEST Started %s\n"
 
-            cat $FASTA/$process_id.all.harvest $FASTA/$process_id.all.finder.scn >$FASTA/$process_id.all.harvest.finder.combine99
-            printf "# args=-index $FASTA/$process_id.fna -maxdistltr $maxdisltr -mindistltr $mindisltr -maxlenltr $maxlenltr -minlenltr $minlenltr -similar $similar -seqids yes -gff3 $FASTA/$process_id.fna.harvest.gff3\n# predictions are reported in the following way\n# s(ret) e(ret) l(ret) s(lLTR) e(lLTR) l(lLTR) s(rLTR) e(rLTR) l(rLTR) sim(LTRs) seq-nr \n# where:\n# s = starting position\n# e = ending position\n# l = length\n# ret = LTR-retrotransposon\n# lLTR = left LTR\n# rLTR = right LTR\n# sim = similarity\n# seq-nr = sequence number\n" >$FASTA/$process_id.header
-            cat $FASTA/$process_id.header $FASTA/$process_id.all.harvest.finder.combine99 >$FASTA/all.harvest.finder.combine
-
-            cp $FASTA/all.harvest.finder.combine $LAI
-            cp $FASTA/$process_id.all.harvest $Collected_Files
-            #######################
-            for i in $FASTA/*.fna.finder
+         conda config --show envs_dirs >$densitypath/condapath
+         sed -i '1d' $densitypath/condapath
+         sed -i 's/  - //g' $densitypath/condapath
+            for condapath in `less $densitypath/condapath`
             do
-               name=$(basename $i ".fna.finder")
-               sed -i '1,7d' $FASTA/$name.fna.finder
-               sed -i '$ d' $FASTA/$name.fna.finder
-               sed -i 's/No LTR Retrotransposons Found//g' $FASTA/$name.fna.finder
-               cat $FASTA/$name.fna.finder >>$FINDER/$process_id.fna.LTR_finder.1
+               perl $LTR_HARVEST -seq $userpath/$process_id.fna -threads $threads -size 1000000 -time 500 -gt $condapath/MegaLTR/bin/gt $minlenltr $maxlenltr $similar > /dev/null 2>/dev/null
             done
-            echo "index	SeqID	Location	LTR len	Inserted element len	TSR	PBS	PPT	RT	IN (core)	IN (c-term)	RH	Strand	Score	Sharpness	Similarity" >$FINDER/$process_id.fna.LTR_finder.tsv
-            awk 'NF > 0' $FINDER/$process_id.fna.LTR_finder.1 >>$FINDER/$process_id.fna.LTR_finder.tsv
-            cut -f2- $FINDER/$process_id.fna.LTR_finder.tsv >$FINDER/$process_id.fna.LTR_finder.tsv2
-            sed -E 's/_sub\S+\t/\t/g' $FINDER/$process_id.fna.LTR_finder.tsv2 >$Collected_Files/$process_id.fna.LTR_finder.tsv
-            cat $FASTA/*.harvest.gff3 >$FASTA/$process_id.fna.harvest.combine.gff3
-            cp $FASTA/$process_id.fna.harvest.combine.gff3 $Collected_Files
-            now5="$(date)"
-            echo
-            printf "\t$now5 \tLTR_FINDER & LTR_HARVEST Done %s\n"   
-#   # # }
-#  # # {     #######LTR_retriever ##########
+         cat $FASTA/$process_id.fna.harvest.combine.scn  $FASTA/$process_id.fna.finder.combine.scn >$FASTA/$process_id.all.harvest.finder.combine
 
-         cd $LAI
-         now6="$(date)"
+         now5="$(date)"
          echo
-         printf "\t$now6 \tLTR_retriever Started %s\n"
-         bash $RUN/newLTR_retriever.sh  $userpath/$process_id.fna $userpath $LAI $minlenltr $process_id $Collected_Files $threads $LTRretriever > /dev/null 2>/dev/null
+         printf "\t$now5 \tLTR_FINDER & LTR_HARVEST Done %s\n"   
+         now50="$(date)"
+         echo
+         printf "\t$now50 \tLTR_retriever Started %s\n" 
+         
+            #######LTR_retriever ##########
+         cd $LAI 
+         $LTRretriever -genome $userpath/$process_id.fna -inharvest $FASTA/$process_id.all.harvest.finder.combine -threads $threads -minlen $minlenltr >>$userpath/screen.txt
+         if [ -f "$LAI/$process_id.fna.pass.list" ]; then 
+            cp $LAI/$process_id.fna.pass.list $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.pass.list" ]; then 
+            cp $LAI/$process_id.fna.mod.pass.list $Collected_Files/$process_id.fna.pass.list
+         fi 
+         if [ -f "$LAI/$process_id.fna.nmtf.pass.list" ]; then 
+            cp $LAI/$process_id.fna.nmtf.pass.list $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.nmtf.pass.list" ]; then 
+            cp $LAI/$process_id.fna.mod.nmtf.pass.list $Collected_Files/$process_id.fna.nmtf.pass.list
+         fi
+         if [ -f "$LAI/$process_id.fna.pass.list.gff3" ]; then 
+            cp $LAI/$process_id.fna.pass.list.gff3 $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.pass.list.gff3" ]; then 
+            cp $LAI/$process_id.fna.mod.pass.list.gff3 $Collected_Files/$process_id.fna.pass.list.gff3
+         fi
+         if [ -f "$LAI/$process_id.fna.out" ]; then 
+            cp $LAI/$process_id.fna.out $Collected_Files
+         fi
+         if [ -f "$LAI/$process_id.fna.mod.out" ]; then 
+            cp $LAI/$process_id.fna.out $Collected_Files/$process_id.fna.out
+         fi
          now7="$(date)"
          echo
          printf "\t$now7 \tLTR_retriever Done %s\n"
-
-#   # # }
-  # # {     #######ltrdigest ###########
+         #######ltrdigest ###########
 conda activate MegaLTR
       now8="$(date)"
       echo
@@ -271,8 +282,7 @@ conda activate MegaLTR
       now9="$(date)"
       echo
       printf "\t$now9 \tLTRdigest Done %s\n"
-  # # }
-  # # {     #######TEsorter ###########
+      #######TEsorter ###########
       now10="$(date)"
       echo
       printf "\t$now10 \tTEsorter Started %s\n"
@@ -302,9 +312,7 @@ conda activate MegaLTR
       python3 $RUN/LTR_Seq_threads.py $userpath/$process_id.fna  $LTRFiles $Collected_Files $threads $RUN/extractseq-id-start-end.pl
       cp $ltrdigest/"$process_id"_pbs.fas $Collected_Files/$process_id.PBS.Sequence.fa
       cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa
-      sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tNCBI ACC\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains' $Collected_Files/LTR_Table_TEsorter_Digest.tsv
-  # # }   
-  # # {
+      sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains' $Collected_Files/LTR_Table_TEsorter_Digest.tsv
 fi
       if ([ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]) ### mode 2
          then
@@ -341,8 +349,6 @@ fi
             printf "\t$now16 \tLTR-RT insertion time plots done %s\n"
          ##exit
       fi
-  # # }
-  # # {   
 
       if [ $Analysistype -eq 3 ] ### mode 3      # #####  TE-gene chimeras #########
          then
@@ -443,10 +449,7 @@ fi
                   cp $densitypath/chromosome.png $Collected_Files/"Gene density and LTR-RTs distribution.png"               
                   fi
             done
-
-         ##exit
       fi
-  # #}
       rm $userpath/$process_id.fna
       rm -rf $FASTA
       rm $userpath/$process_id.gff
