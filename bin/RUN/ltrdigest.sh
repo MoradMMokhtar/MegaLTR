@@ -22,6 +22,7 @@ ltrdigest="$5"
    awk -F "\t" '{print $2}' $ltrdigest/sequence-region.ids >$ltrdigest/sequence-region.ids.2
    cp $ltrdigest/$process_id.fna.des $ltrdigest/$process_id.fna.ids
    sed -i '$d' $ltrdigest/$process_id.fna.ids
+   sed -i '/^$/d' $ltrdigest/$process_id.fna.ids
    awk '{print $0 "\t" NR-1}' $ltrdigest/$process_id.fna.ids >$ltrdigest/ids.uniq_with_numbers
    sed -i '1,5d' $ltrdigest/$process_id.fna.pass.list.gff3
    sed -i 's/Name=/seq_number=/g' $ltrdigest/$process_id.fna.pass.list.gff3
