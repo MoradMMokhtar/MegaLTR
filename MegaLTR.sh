@@ -214,6 +214,8 @@ conda activate MegaLTR
          # echo
             ############## copy and split fasta #############
             cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file 
+            sed -i 's/|/_/' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
+            sed -i 's/|/ /' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/\t.*//g' $userpath/$trna  ### remove unnecessary details from tRNA sequence headers
             now2="$(date)"
