@@ -11,6 +11,7 @@ LTR_HARVEST=$(pwd)/bin/LTR_HARVEST_parallel/LTR_HARVEST_parallel
 LTRretriever=$(pwd)/bin/LTR_retriever/LTR_retriever
 chmod 775 $LTRretriever #Give execulting permissions for LTRretriever
 RUN=$(pwd)/bin/RUN
+chmod 775 $RUN/usearch11.0.667_i86linux32 #Give execulting permissions
 eval "$(conda shell.bash hook)"
 ############################################################
 # Set variables                                            #
@@ -152,6 +153,8 @@ mkdir -p $userpath/LTR_HARVEST
 LTRHARVEST=$userpath/LTR_HARVEST
 mkdir -p $userpath/LTRFiles
 LTRFiles=$userpath/LTRFiles
+USERCH= mkdir -p $userpath/USERCH
+USERCH=$userpath/USERCH
 
 ###############################################################
 #### MegaLTR process the start.                               #
@@ -312,6 +315,16 @@ conda activate MegaLTR
          cp $ltrdigest/"$process_id"_pbs.fas $Collected_Files/$process_id.PBS.Sequence.fa
          cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa      
          sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains' $Collected_Files/LTR_Table_TEsorter_Digest.tsv
+		   ######## for LTR.non-redundant.fa #################
+
+		   cp $Collected_Files/LTR-RT_Sequence.fa $USERCH/LTR-RT_Sequence.fa
+		   $RUN/usearch11.0.667_i86linux32  -sortbylength $USERCH/LTR-RT_Sequence.fa --fastaout $USERCH/LTR-RT_Sequence_sorted.fa --log $USERCH/usearch.log
+		   $RUN/usearch11.0.667_i86linux32  -cluster_fast  $USERCH/LTR-RT_Sequence_sorted.fa --id 0.9 --centroids $USERCH/LTR-RTs_non-redundant.fa --uc $USERCH/result.uc -consout $USERCH/LTR-RTs_conses.fa -msaout $USERCH/aligned.fasta --log $USERCH/usearch2.log
+		   rm $USERCH/aligned.* 
+		   cp $USERCH/LTR-RTs_non-redundant.fa $Collected_Files/LTR-RTs_non-redundant_library.fasta
+		   now100="$(date)"
+		   printf "\n\n\t$now101 \tNon-redundant LTR library done%s\n\n"
+      
       fi
       if ([ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]) ### mode 2
          then
