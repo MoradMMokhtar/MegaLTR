@@ -12,6 +12,7 @@ LTRretriever=$(pwd)/bin/LTR_retriever/LTR_retriever
 chmod 775 $LTRretriever #Give execulting permissions for LTRretriever
 RUN=$(pwd)/bin/RUN
 test=$(pwd)/Data_for_test
+chmod 775 $RUN/usearch11.0.667_i86linux32 #Give execulting permissions
 eval "$(conda shell.bash hook)"
 ############################################################
 # Set variables                                            #
@@ -153,7 +154,8 @@ mkdir -p $userpath/LTR_HARVEST
 LTRHARVEST=$userpath/LTR_HARVEST
 mkdir -p $userpath/LTRFiles
 LTRFiles=$userpath/LTRFiles
-
+USERCH= mkdir -p $userpath/USERCH
+USERCH=$userpath/USERCH
 ###############################################################
 #### MegaLTR process the start.                               #
 ###############################################################
@@ -348,6 +350,15 @@ fi
             echo
             printf "\t$now16 \tLTR-RT insertion time plots done %s\n"
          ##exit
+	   ######## for LTR.non-redundant.fa #################
+
+	   cp $Collected_Files/LTR-RT_Sequence.fa $USERCH/LTR-RT_Sequence.fa
+	   $RUN/usearch11.0.667_i86linux32  -sortbylength $USERCH/LTR-RT_Sequence.fa --fastaout $USERCH/LTR-RT_Sequence_sorted.fa --log $USERCH/usearch.log
+	   $RUN/usearch11.0.667_i86linux32  -cluster_fast  $USERCH/LTR-RT_Sequence_sorted.fa --id 0.9 --centroids $USERCH/LTR-RTs_non-redundant.fa --uc $USERCH/result.uc -consout $USERCH/LTR-RTs_conses.fa -msaout $USERCH/aligned.fasta --log $USERCH/usearch2.log
+	   rm $USERCH/aligned.* 
+	   cp $USERCH/LTR-RTs_non-redundant.fa $Collected_Files/LTR-RTs_non-redundant_library.fasta
+	   now100="$(date)"
+	   printf "\n\n\t$now101 \tNon-redundant LTR library done%s\n\n"
       fi
 
       if [ $Analysistype -eq 3 ] ### mode 3      # #####  TE-gene chimeras #########
