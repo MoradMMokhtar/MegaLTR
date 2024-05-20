@@ -53,7 +53,7 @@ Go to the MegaLTR folder
 
 
     
-    bash MegaLTR.sh -A [1 or 2 or 3] -F [Genome in FASTA Format] -G [GFF/GFF3 File]
+    bash MegaLTR.sh -A [1 or 2 or 3 or 4] -F [Genome in FASTA Format] -G [GFF/GFF3 File]
     
     #Required arguments:
     -A		The analysis type [1 or 2 or 3] 
