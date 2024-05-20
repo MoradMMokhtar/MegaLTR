@@ -13,6 +13,8 @@ MegaLTR running with three options:
 > 2: Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time.
 > 
 > 3: Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes.
+>
+> 4: LTR Assembly Index (LAI) calculation.  
 
 MegaLTR has been tested on Ubuntu 18.04 and 20.04.
 
