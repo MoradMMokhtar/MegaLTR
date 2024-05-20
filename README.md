@@ -1,6 +1,6 @@
 ﻿# # MegaLTR
 
-MegaLTR is a robust online server that identifies intact LTR-RTs in any target genome, and its local standalone version. MegaLTR is freely available at [https://bioinformatics.um6p.ma/MegaLTR](https://bioinformatics.um6p.ma/MegaLTR)
+MegaLTR is a robust online server and local standalone that can identifies intact LTR-RTs and calculate LTR Assembly Index (LAI) in any target genome. MegaLTR is freely available at [https://bioinformatics.um6p.ma/MegaLTR](https://bioinformatics.um6p.ma/MegaLTR)
 
 
 MegaLTR is a pipeline that detects intact LTR-RTs at the whole genome level. The pipeline integrates the structure-based, homology-based and de novo intact LTR-RT identification, classification, annotation and visualization tools such as [LTR_FINEDR](https://github.com/xzhub/LTR_Finder), [LTRharvest](http://genometools.org/pub/binary_distributions/), [LTR_retriever](https://github.com/oushujun/LTR_retriever), [RepeatMasker](http://www.repeatmasker.org/), [CDHIT package](http://weizhongli-lab.org/cd-hit/), [BLAST+ package](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/), [HMMER package](http://hmmer.org/),  [LTRdigest](https://www.zbh.uni-hamburg.de/en/forschung/gi/software/ltrdigest.html), [TEsorter](https://github.com/zhangrengang/TEsorter), l [REANNOTATE](http://www.bioinformatics.org/reannotate/about.html), [ClustalW](https://anaconda.org/bioconda/clustalw), [faidx](https://anaconda.org/bioconda/pyfaidx), [Rscript](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/Rscript), and [RIdeogram](https://cran.r-project.org/web/packages/RIdeogram/vignettes/RIdeogram.html).
@@ -40,11 +40,11 @@ The installation require conda. You can install all dependencies for running Meg
 
 ## Required data
 
-|Data|Option 1|Option 2|Option 3|
-|--|--|--|--|
-| Genome sequence - Fasta file with chromosomes/scaffolds/contigs sequences | Required |Required  |Required  |
-| Genome annotation - GFF/GFF3 file with genome annotations (gene,CDS,mRNA) | Not Required |Not Required  |Required  |
-|  |  |  |  |
+|Data|Option 1|Option 2|Option 3|Option 4|
+|--|--|--|--|--|
+| Genome sequence - Fasta file with chromosomes/scaffolds/contigs sequences | Required |Required  |Required  |Required  |
+| Genome annotation - GFF/GFF3 file with genome annotations (gene,CDS,mRNA) | Not Required |Not Required  |Required  |Not Required  |
+|  |  |  |  |  |
 
 ##  Usage
 Go to the MegaLTR folder
@@ -57,7 +57,8 @@ Go to the MegaLTR folder
     -A		The analysis type [1 or 2 or 3] 
 		    1 (for Intact LTR-RT identification and annotation of internal domains 'This analysis needs FASTA file only') 
 		    2 (for Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time 'This analysis needs FASTA file only') 
-		    3 (for Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes 'This analysis needs FASTA and GFF files')     
+		    3 (for Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes 'This analysis needs FASTA and GFF files') 
+            4 (for calculate LTR Assembly Index (LAI)'This analysis needs FASTA file only')    
 	-F		Your path to the genome sequence (Fasta file). 
 	-G		Your path to the genome annotation (GFF/GFF3 file). Required with argument -A 3 only.
 
@@ -117,6 +118,7 @@ We have collected the main output files in the Collected _Files folder in the ma
 | 18 | *.PBS.Sequence.fa | All PBS in FASTA format |
 | 19 | *.PPT.Sequence.fa | All PPT in FASTA format |
 | 20 | LTR-RT_Sequence.fa | All intact LTR-RTs in FASTA format |
+| 21 | .out.LAI | LTR Assembly Index (LAI) value |
  #
  ## Output files example (images)
  
@@ -144,3 +146,6 @@ We have collected the main output files in the Collected _Files folder in the ma
 ## For more information and help
 
 To report bugs and give us suggestions, you can open an issue here. You may also contact us by e-mail morad.mokhtar@um6p.ma or achraf.elallali@um6p.ma
+
+If you used MegaLTR to calculate LTR Assembly Index (LAI) please cite PlantLAI (https://doi.org/10.1093/aobpla/plad015) and MegaLTR (https://doi.org/10.3389/fpls.2023.1237426) otherwise  please cite MegaLTR (https://doi.org/10.3389/fpls.2023.1237426) and PltRNAdb (https://doi.org/10.1371/journal.pone.0268904)
+
