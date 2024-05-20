@@ -1,5 +1,5 @@
 #!/bin/bash
-##Last update 31-01-2023 by Morad Mokhtar
+##Last update 20-05-2024 by Morad Mokhtar
    if [ $# -eq 0 ]
       then
          echo "Parameters -A and -F is required, use [bash MegaLTR.sh -help] for more detalis"
@@ -39,7 +39,7 @@ density1=1000000
 numberofchromosom=9
 threads=4
 ############################################################
-# Help                                                     #
+## Help                                                   ##
 ############################################################
 Help()
 {
@@ -50,7 +50,7 @@ Help()
    echo
    echo "     Options:"
    echo "     -h     Print this Help."
-   echo "     -A     The analysis type [1 or 2 or 3] 1 (for Intact LTR-RT identification and annotation of internal domains 'This analysis needs FASTA file only') 2 (for Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time 'This analysis needs FASTA file only') 3 (for Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes 'This analysis needs FASTA and GFF files') , default is 3"
+   echo "     -A     The analysis type [1 or 2 or 3 or 4] 1 (for Intact LTR-RT identification and annotation of internal domains 'This analysis needs FASTA file only') 2 (for Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time 'This analysis needs FASTA file only') 3 (for Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes 'This analysis needs FASTA and GFF files') 4 (for calculate LTR Assembly Index (LAI)'This analysis needs FASTA file only'), default is 3"
    echo "     -F     Your path to Fasta file."
    echo "     -G     Your path to GFF file."
    echo "     -T     tRNA sequence file (Locate the filename from the tRNA folder or provide your own tRNA sequence in FASTA format, default is Arabidopsis_thaliana_trna.fa)."
@@ -126,36 +126,13 @@ userpath= mkdir -p $(pwd)/$process_id
 userpath=$(pwd)/$process_id
 LAI= mkdir -p $userpath/LAI
 LAI=$userpath/LAI
-ltrdigest= mkdir -p $userpath/LTRdigest
-ltrdigest=$userpath/LTRdigest
-mkdir -p $userpath/TEsorter
-TEsorter=$userpath/TEsorter
-mkdir -p $userpath/Others
-Others=$userpath/Others
 mkdir -p $userpath/Time
 time=$userpath/Time
-mkdir -p $userpath/R_plots
-Rplots=$userpath/R_plots
-mkdir -p $userpath/inside_genes
-inside_genes=$userpath/inside_genes
-mkdir -p $userpath/near_genes
-near_genes=$userpath/near_genes
-mkdir -p $userpath/density
-densitypath=$userpath/density
 process_id=$outfileprefix
-mkdir -p $userpath/Collected_Files
-Collected_Files=$userpath/Collected_Files
 mkdir -p $userpath/FASTA
 FASTA=$userpath/FASTA
-mkdir -p $userpath/LTR_FINDER
-FINDER=$userpath/LTR_FINDER
-mkdir -p $userpath/LTR_HARVEST
-LTRHARVEST=$userpath/LTR_HARVEST
-mkdir -p $userpath/LTRFiles
-LTRFiles=$userpath/LTRFiles
-USERCH= mkdir -p $userpath/USERCH
-USERCH=$userpath/USERCH
-
+mkdir -p $userpath/Collected_Files
+Collected_Files=$userpath/Collected_Files
 ###############################################################
 #### MegaLTR process the start.                               #
 ###############################################################
@@ -210,15 +187,15 @@ conda activate MegaLTR
          elif ([[ $Analysistype -eq 3 ]] && [ $(stat -c%s "$gffpath") -gt 500 ]); then
             cp $gffpath $userpath/$process_id.gff #### copy gff file
       fi
-   if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
+   if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]  || [ $Analysistype -eq 4 ]); ### mode 2
       then
-         # : <<'END' END
-         # printf "\t$now \t Start time %s\n"  ### print current date
-         # echo
+         
             ############## copy and split fasta #############
-            cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file 
-            sed -i 's/|/_/' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
-            sed -i 's/|/ /' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
+            cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file
+            python3 $RUN/replaceIDs.py $userpath/$process_id.fna '>\S+' $userpath/$process_id.mapping.txt
+
+            ## sed -i 's/|/_/' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
+            ## sed -i 's/|/ /' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/\t.*//g' $userpath/$trna  ### remove unnecessary details from tRNA sequence headers
             now2="$(date)"
@@ -228,7 +205,8 @@ conda activate MegaLTR
          perl $LTR_FINDER -seq $userpath/$process_id.fna  -threads $threads -harvest_out -size 1000000 -time 500  $tRNAdb/$trna $trna $maxdisltr $mindisltr $maxlenltr $minlenltr $matchpairs $similarFinder  $FASTA  $similar $process_id > /dev/null 2>/dev/null
          now51="$(date)"
          printf "\n\t$now51 \tLTR_HARVEST Started %s\n"
-
+         mkdir -p $userpath/density
+         densitypath=$userpath/density
          conda config --show envs_dirs >$densitypath/condapath
          sed -i '1d' $densitypath/condapath
          sed -i 's/  - //g' $densitypath/condapath
@@ -248,34 +226,70 @@ conda activate MegaLTR
             #######LTR_retriever ##########
          cd $LAI 
          $LTRretriever -genome $userpath/$process_id.fna -inharvest $FASTA/$process_id.all.harvest.finder.combine -threads $threads -minlen $minlenltr >>$userpath/screen.txt
+         
          if [ -f "$LAI/$process_id.fna.pass.list" ]; then 
             cp $LAI/$process_id.fna.pass.list $Collected_Files
+            python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.pass.list $userpath/$process_id.mapping.txt 2
+            else
+            echo "Error: $process_id.fna.pass.list not found" >> $Collected_Files/$process_id.errors.txt
          fi
-         if [ -f "$LAI/$process_id.fna.mod.pass.list" ]; then 
-            cp $LAI/$process_id.fna.mod.pass.list $Collected_Files/$process_id.fna.pass.list
-         fi 
+         
          if [ -f "$LAI/$process_id.fna.nmtf.pass.list" ]; then 
             cp $LAI/$process_id.fna.nmtf.pass.list $Collected_Files
-         fi
-         if [ -f "$LAI/$process_id.fna.mod.nmtf.pass.list" ]; then 
-            cp $LAI/$process_id.fna.mod.nmtf.pass.list $Collected_Files/$process_id.fna.nmtf.pass.list
+            python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.nmtf.pass.list $userpath/$process_id.mapping.txt 2
+            else
+            echo "Error: $process_id.fna.nmtf.pass.list not found" >> $Collected_Files/$process_id.errors.txt
          fi
          if [ -f "$LAI/$process_id.fna.pass.list.gff3" ]; then 
             cp $LAI/$process_id.fna.pass.list.gff3 $Collected_Files
-         fi
-         if [ -f "$LAI/$process_id.fna.mod.pass.list.gff3" ]; then 
-            cp $LAI/$process_id.fna.mod.pass.list.gff3 $Collected_Files/$process_id.fna.pass.list.gff3
+            python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.pass.list.gff3 $userpath/$process_id.mapping.txt 2
+            else
+            echo "Error: $process_id.fna.pass.list.gff3 not found" >> $Collected_Files/$process_id.errors.txt
          fi
          if [ -f "$LAI/$process_id.fna.out" ]; then 
             cp $LAI/$process_id.fna.out $Collected_Files
+            python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.out $userpath/$process_id.mapping.txt 2
+            else
+            echo "Error: $process_id.fna.out not found" >> $Collected_Files/$process_id.errors.txt
          fi
-         if [ -f "$LAI/$process_id.fna.mod.out" ]; then 
-            cp $LAI/$process_id.fna.out $Collected_Files/$process_id.fna.out
+         if [ -f "$LAI/$process_id.fna.out.LAI" ]; then 
+            cp $LAI/$process_id.fna.out.LAI $Collected_Files
+            python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.out.LAI $userpath/$process_id.mapping.txt 2
+            else
+            echo "Error: $process_id.fna.out.LAI not found" >> $Collected_Files/$process_id.errors.txt
          fi
          now7="$(date)"
          echo
-         printf "\t$now7 \tLTR_retriever Done %s\n"
+         printf "\t$now7 \tLTR_retriever Done %s\n\n"
+
+         LAIidentity=$(grep -i "The identity of LTR sequences:" $userpath/screen.txt)
+         printf "\n\t $LAIidentity%%s\n\n"
+
+         LAIindexError=$(grep -i "Error" $userpath/screen.txt)
+         echo "$LAIindexError"
+         echo "$LAIindexError" >> $Collected_Files/$process_id.errors.txt
+
+         LAIindexSorry=$(grep -i "Sorry" $userpath/screen.txt)
+         printf "\n\t$LAIindexSorry \n\n"
+         echo "$LAIindexSorry" >> $Collected_Files/$process_id.errors.txt
+
+         if [ -f "$LAI/$process_id.fna.out.LAI" ]; then 
+            LAIindexvalue=$(grep -i "whole_genome" $LAI/$process_id.fna.out.LAI | awk -F '\t' '{print "Raw_LAI:" $6 "\t" "LAI_value: "$7 }')
+            printf "\t$LAIindexvalue \n\n" 
+         fi
+   fi
+
+  if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
+      then         
          #######ltrdigest ###########
+         
+
+         mkdir -p $userpath/Others
+         Others=$userpath/Others
+         mkdir -p $userpath/TEsorter
+         TEsorter=$userpath/TEsorter
+         mkdir -p $userpath/LTRdigest
+         ltrdigest=$userpath/LTRdigest
          conda activate MegaLTR
          now8="$(date)"
          echo
@@ -309,6 +323,8 @@ conda activate MegaLTR
          awk -F "\t" '{ print  $2"\t"$33"\t"$3"\t"$4"\t"$5 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.length.ids.forstat
          python3 $RUN/super_familly_stat.py $Others/$process_id.length.ids.forstat $Collected_Files/$process_id.statistics.tsv ##LTR superfamily summary    
          awk -F "\t" '{ print  $2"\t"$3"\t"$4"\t"$5"\t"$32"\t"$33"\t"$34 }' $Others/LTR_Table_TEsorter_Digest.tsv > $Others/$process_id.ids.extract_seq
+         mkdir -p $userpath/LTRFiles
+         LTRFiles=$userpath/LTRFiles
          cd $LTRFiles
          split -n l/100 $Others/$process_id.ids.extract_seq
          python3 $RUN/LTR_Seq_threads.py $userpath/$process_id.fna  $LTRFiles $Collected_Files $threads $RUN/extractseq-id-start-end.pl
@@ -316,18 +332,30 @@ conda activate MegaLTR
          cp $ltrdigest/"$process_id"_ppt.fas $Collected_Files/$process_id.PPT.Sequence.fa      
          sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains' $Collected_Files/LTR_Table_TEsorter_Digest.tsv
 		   ######## for LTR.non-redundant.fa #################
+         python3 $RUN/modifyGFF.py $Collected_Files/LTR-RT_Sequence.fa $userpath/$process_id.mapping.txt 2
 
+         USERCH= mkdir -p $userpath/USERCH
+         USERCH=$userpath/USERCH
 		   cp $Collected_Files/LTR-RT_Sequence.fa $USERCH/LTR-RT_Sequence.fa
 		   $RUN/usearch11.0.667_i86linux32  -sortbylength $USERCH/LTR-RT_Sequence.fa --fastaout $USERCH/LTR-RT_Sequence_sorted.fa --log $USERCH/usearch.log
 		   $RUN/usearch11.0.667_i86linux32  -cluster_fast  $USERCH/LTR-RT_Sequence_sorted.fa --id 0.9 --centroids $USERCH/LTR-RTs_non-redundant.fa --uc $USERCH/result.uc -consout $USERCH/LTR-RTs_conses.fa -msaout $USERCH/aligned.fasta --log $USERCH/usearch2.log
 		   rm $USERCH/aligned.* 
 		   cp $USERCH/LTR-RTs_non-redundant.fa $Collected_Files/LTR-RTs_non-redundant_library.fasta
 		   now100="$(date)"
+         
+         python3 $RUN/modifyGFF.py $Collected_Files/LTR_Table_TEsorter_Digest.tsv $userpath/$process_id.mapping.txt 2
+         python3 $RUN/modifyGFF.py $Collected_Files/$process_id.PBS.Sequence.fa $userpath/$process_id.mapping.txt 2
+         python3 $RUN/modifyGFF.py $Collected_Files/$process_id.PPT.Sequence.fa $userpath/$process_id.mapping.txt 2
+         python3 $RUN/modifyGFF.py $Collected_Files/LTR-RTs_non-redundant_library.fasta $userpath/$process_id.mapping.txt 2
+
+
 		   printf "\n\n\t$now101 \tNon-redundant LTR library done%s\n\n"
       
       fi
       if ([ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]) ### mode 2
          then
+            mkdir -p $userpath/R_plots
+            Rplots=$userpath/R_plots
             ########LTR insertion time ###########
             now14="$(date)"
             echo
@@ -343,6 +371,7 @@ conda activate MegaLTR
                   echo -e $fname "\t""$ltrk"  >> $Others/$process_id.time.txt
                done
             perl $RUN/TEsorterandtable_time.pl  $Others/LTR_Table_TEsorter_Digest.tsv $Others/$process_id.time.txt >$Others/$process_id.Digest_TEsorter_Time.tsv  ############# $Others/$process_id.Digest_TEsorter_Time (header) org_name	acc	element_start	element_end	element_length			strand	lTSD_start	lTSD_end	lLTR_start	lLTR_end	rLTR_start	rLTR_end	rTSD_start	rTSD_end	EDTA_infoo	PPT start	PPT end	PPT motif	PPT offset	PBS start	PBS end	tRNA	tRNA motif	PBS offset	tRNA offset	PBS/tRNA	edist Order	Superfamily	Clade	Complete	Strand	Domains	LTRNAME	K_Kimura	K_Ksd	K_TajimaNei	K_TNsd	timeK	timeKsd	numComparedSites	transitions	numComparedSites	transversions	numComparedSites	timeTN	transitions_numComparedSites	transversions_numComparedSites
+            python3 $RUN/modifyGFF.py $Others/$process_id.Digest_TEsorter_Time.tsv $userpath/$process_id.mapping.txt 2
             cp $Others/$process_id.Digest_TEsorter_Time.tsv $Collected_Files ### LTR_retriever, LTRdigest, TEsorter, and insertion time results in one file
             sed  -i '1i LTR-RT id\tPseudomolecules/scaffolds\tLTR-RT start\tLTR-RT end\tLTR-RT length\tlLTR start\tlLTR end\tlLTR length\trLTR start\trLTR end\trLTR length\tlTSD start\tlTSD end\tlTSD sequence\trTSD start\trTSD end\trTSD sequence\tPPT start\tPPT end\tPPT motif\tStrand\tPPT offset\tPBS start\tPBS end\tStrand\ttRNA id\ttRNA motif\tPBS offset\ttRNA offset\tPBS/tRNA\t\tClass\tSuperfamily\tClade\tComplete\tStrand\tDomains\tK_Kimura\tK_Ksd\tK_TajimaNei\tK_TNsd\ttimeK\ttimeKsd\tnumComparedSites\ttransitions\tnumComparedSites\ttransversions\tnumComparedSites\ttimeTN\ttransitions_numComparedSites\ttransversions_numComparedSites' $Collected_Files/$process_id.Digest_TEsorter_Time.tsv
             ###### preparing the files for R plots #
@@ -359,12 +388,18 @@ conda activate MegaLTR
             now16="$(date)"
             echo
             printf "\t$now16 \tLTR-RT insertion time plots done %s\n"
-            ##exit
+            ###exit
          fi
 
       if [ $Analysistype -eq 3 ] ### mode 3      # #####  TE-gene chimeras #########
          then
             now17="$(date)"
+            
+            mkdir -p $userpath/inside_genes
+            inside_genes=$userpath/inside_genes
+            mkdir -p $userpath/near_genes
+            near_genes=$userpath/near_genes
+
             echo
             printf "\t$now17 \tLTR-RT-gene chimeras started %s\n"
             grep -P "\tgene\t" $userpath/$process_id.gff > $userpath/$process_id.grep.gene ## retrieve gene start and end from GFF file
@@ -404,6 +439,7 @@ conda activate MegaLTR
             now20="$(date)"
             echo
             printf "\t$now20 \tVisualization of gene density and LTR-RTs across chromosomes %s\n"
+            densitypath=$userpath/density
             awk -F "\t" '{ print  $33"\t"$33"\t"$2"\t"$3"\t"$4"\t"$33 }' $Others/$process_id.Digest_TEsorter_Time.tsv > $densitypath/$process_id.figure.distrbution1
             sed -i -E 's/Autonomous://g' $densitypath/$process_id.figure.distrbution1
             sed -i -E 's/Nonautonomous://g' $densitypath/$process_id.figure.distrbution1
@@ -466,3 +502,4 @@ conda activate MegaLTR
          now21="$(date)"
          echo
          printf "\t$now21 \tMegaLTR Done, The results saved in ($Collected_Files) %s\n"
+         printf "\tIf you used MegaLTR to calculate LTR Assembly Index (LAI) please cite PlantLAI (https://doi.org/10.1093/aobpla/plad015) and MegaLTR (https://doi.org/10.3389/fpls.2023.1237426) otherwise  please cite MegaLTR (https://doi.org/10.3389/fpls.2023.1237426) and PltRNAdb (https://doi.org/10.1371/journal.pone.0268904) %s\n"
