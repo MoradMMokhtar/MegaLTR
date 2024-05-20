@@ -60,7 +60,7 @@ Go to the MegaLTR folder
 		    1 (for Intact LTR-RT identification and annotation of internal domains 'This analysis needs FASTA file only') 
 		    2 (for Intact LTR-RT Identification and annotation of internal domains plus determination of insertion time 'This analysis needs FASTA file only') 
 		    3 (for Intact LTR-RT Identification, annotation of internal domains, determination of insertion time, LTR-RT gene-chimera analysis and visualization of gene density and LTR-RTs across chromosomes 'This analysis needs FASTA and GFF files') 
-            4 (for calculate LTR Assembly Index (LAI)'This analysis needs FASTA file only')    
+		    4 (for calculate LTR Assembly Index (LAI)'This analysis needs FASTA file only')    
 	-F		Your path to the genome sequence (Fasta file). 
 	-G		Your path to the genome annotation (GFF/GFF3 file). Required with argument -A 3 only.
 
