@@ -193,7 +193,6 @@ conda activate MegaLTR
             ############## copy and split fasta #############
             cp $tRNAdb/$trna $userpath/$trna  #### copy tRNA file
             python3 $RUN/replaceIDs.py $userpath/$process_id.fna '>\S+' $userpath/$process_id.mapping.txt
-
             ## sed -i 's/|/_/' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             ## sed -i 's/|/ /' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
             sed -i 's/ .*//' $userpath/$process_id.fna  ### remove unnecessary details from Fasta sequence headers
@@ -231,32 +230,32 @@ conda activate MegaLTR
             cp $LAI/$process_id.fna.pass.list $Collected_Files
             python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.pass.list $userpath/$process_id.mapping.txt 2
             else
-            echo "Error: $process_id.fna.pass.list not found" >> $Collected_Files/$process_id.errors.txt
+            echo "Error: $process_id.fna.pass.list not found" >> $Collected_Files/$process_id.log.txt
          fi
          
          if [ -f "$LAI/$process_id.fna.nmtf.pass.list" ]; then 
             cp $LAI/$process_id.fna.nmtf.pass.list $Collected_Files
             python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.nmtf.pass.list $userpath/$process_id.mapping.txt 2
             else
-            echo "Error: $process_id.fna.nmtf.pass.list not found" >> $Collected_Files/$process_id.errors.txt
+            echo "Error: $process_id.fna.nmtf.pass.list not found" >> $Collected_Files/$process_id.log.txt
          fi
          if [ -f "$LAI/$process_id.fna.pass.list.gff3" ]; then 
             cp $LAI/$process_id.fna.pass.list.gff3 $Collected_Files
             python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.pass.list.gff3 $userpath/$process_id.mapping.txt 2
             else
-            echo "Error: $process_id.fna.pass.list.gff3 not found" >> $Collected_Files/$process_id.errors.txt
+            echo "Error: $process_id.fna.pass.list.gff3 not found" >> $Collected_Files/$process_id.log.txt
          fi
          if [ -f "$LAI/$process_id.fna.out" ]; then 
             cp $LAI/$process_id.fna.out $Collected_Files
             python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.out $userpath/$process_id.mapping.txt 2
             else
-            echo "Error: $process_id.fna.out not found" >> $Collected_Files/$process_id.errors.txt
+            echo "Error: $process_id.fna.out not found" >> $Collected_Files/$process_id.log.txt
          fi
          if [ -f "$LAI/$process_id.fna.out.LAI" ]; then 
             cp $LAI/$process_id.fna.out.LAI $Collected_Files
             python3 $RUN/modifyGFF.py $Collected_Files/$process_id.fna.out.LAI $userpath/$process_id.mapping.txt 2
             else
-            echo "Error: $process_id.fna.out.LAI not found" >> $Collected_Files/$process_id.errors.txt
+            echo "Error: $process_id.fna.out.LAI not found" >> $Collected_Files/$process_id.log.txt
          fi
          now7="$(date)"
          echo
@@ -267,11 +266,11 @@ conda activate MegaLTR
 
          LAIindexError=$(grep -i "Error" $userpath/screen.txt)
          echo "$LAIindexError"
-         echo "$LAIindexError" >> $Collected_Files/$process_id.errors.txt
+         echo "$LAIindexError" >> $Collected_Files/$process_id.log.txt
 
          LAIindexSorry=$(grep -i "Sorry" $userpath/screen.txt)
          printf "\n\t$LAIindexSorry \n\n"
-         echo "$LAIindexSorry" >> $Collected_Files/$process_id.errors.txt
+         echo "$LAIindexSorry" >> $Collected_Files/$process_id.log.txt
 
          if [ -f "$LAI/$process_id.fna.out.LAI" ]; then 
             LAIindexvalue=$(grep -i "whole_genome" $LAI/$process_id.fna.out.LAI | awk -F '\t' '{print "Raw_LAI:" $6 "\t" "LAI_value: "$7 }')
@@ -282,7 +281,6 @@ conda activate MegaLTR
   if ([ $Analysistype -eq 1 ] || [ $Analysistype -eq 2 ] || [ $Analysistype -eq 3 ]); ### mode 2
       then         
          #######ltrdigest ###########
-         
 
          mkdir -p $userpath/Others
          Others=$userpath/Others
